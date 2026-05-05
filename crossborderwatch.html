@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>India Capital Markets & Cross-Border Regulatory News — Last 5 Months</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=STIX+Two+Text:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Source+Code+Pro:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --ink:      #111318;
+    --paper:    #f8f7f4;
+    --rule:     #cdc8be;
+    --accent:   #b5381e;
+    --accent2:  #1a3d6b;
+    --accent3:  #2d6b4a;
+    --accent4:  #7c4a1e;
+    --accent5:  #4a1e6b;
+    --faint:    #f0ede6;
+    --mid:      #7a7468;
+    --tag-bg:   #e6e1d8;
+    --border:   #b8b2a8;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'STIX Two Text', 'Times New Roman', serif;
+    background: var(--paper);
+    color: var(--ink);
+    font-size: 15px;
+    line-height: 1.65;
+  }
+
+  /* ── MASTHEAD ── */
+  header {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 2.2rem 3rem 1.8rem;
+    border-bottom: 3px solid var(--accent);
+  }
+  header .kicker {
+    font-family: 'Source Code Pro', 'Courier New', monospace;
+    font-size: 0.67rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #b8a898;
+    margin-bottom: 0.55rem;
+  }
+  header h1 {
+    font-family: 'STIX Two Text', 'Times New Roman', serif;
+    font-weight: 700;
+    font-size: clamp(1.25rem, 2.5vw, 1.85rem);
+    line-height: 1.25;
+    margin-bottom: 0.7rem;
+    letter-spacing: 0.01em;
+    color: #f2ede6;
+  }
+  header .meta {
+    font-family: 'Source Code Pro', 'Courier New', monospace;
+    font-size: 0.68rem;
+    color: #9a9590;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem 1.6rem;
+  }
+  header .meta span { display: flex; align-items: center; gap: 0.3rem; }
+  header .meta .dot { color: var(--accent); font-size: 0.65rem; }
+
+  /* ── CATEGORY LEGEND ── */
+  .legend {
+    background: var(--faint);
+    border-bottom: 1px solid var(--rule);
+    padding: 0.8rem 3rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem 0.9rem;
+    align-items: center;
+  }
+  .legend-label {
+    font-family: 'Source Code Pro', 'Courier New', monospace;
+    font-size: 0.63rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--mid);
+    margin-right: 0.4rem;
+  }
+  .tag {
+    font-family: 'Source Code Pro', 'Courier New', monospace;
+    font-size: 0.6rem;
+    font-weight: 500;
+    padding: 0.18rem 0.5rem;
+    border-radius: 2px;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    color: #fff;
+  }
+  .tag-fdi   { background: var(--accent); }
+  .tag-ecb   { background: var(--accent2); }
+  .tag-fpi   { background: var(--accent3); }
+  .tag-fema  { background: var(--accent4); }
+  .tag-ndf   { background: #c07a20; }
+  .tag-ifsc  { background: var(--accent5); }
+  .tag-fsr   { background: #2d6b5a; }
+  .tag-ma    { background: #5a2d6b; }
+  .tag-lrs   { background: #1a5c5c; }
+  .tag-pnote { background: #6b3a1e; }
+
+  /* ── TABLE WRAPPER ── */
+  .table-wrap {
+    padding: 2rem 1.5rem 4rem;
+    overflow-x: auto;
+  }
+  table {
+    width: 100%;
+    min-width: 900px;
+    border-collapse: collapse;
+    font-size: 13.5px;
+    border: 1px solid var(--border);
+  }
+  col.c-date    { width: 96px; }
+  col.c-cat     { width: 104px; }
+  col.c-title   { width: 21%; }
+  col.c-source  { width: 130px; }
+  col.c-summary { width: auto; }
+  col.c-url     { width: 76px; }
+
+  thead tr { background: #1e2130; color: #e8e3dc; }
+  thead th {
+    font-family: 'Source Code Pro', 'Courier New', monospace;
+    font-weight: 600;
+    font-size: 0.67rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    padding: 0.8rem 1rem;
+    text-align: left;
+    border-right: 1px solid #2e3344;
+  }
+  thead th:last-child { border-right: none; }
+
+  tbody tr { border-bottom: 1px solid var(--rule); transition: background 0.12s; }
+  tbody tr:nth-child(even) { background: var(--faint); }
+  tbody tr:hover { background: #e8e3d8; }
+
+  td {
+    padding: 0.8rem 1rem;
+    vertical-align: top;
+    border-right: 1px solid var(--rule);
+  }
+  td:last-child { border-right: none; }
+
+  .date-cell {
+    font-family: 'Source Code Pro', 'Courier New', monospace;
+    font-size: 0.68rem;
+    color: var(--accent2);
+    font-weight: 500;
+    white-space: nowrap;
+  }
+  .title-cell {
+    font-family: 'STIX Two Text', 'Times New Roman', serif;
+    font-weight: 600;
+    font-size: 13.5px;
+    line-height: 1.45;
+    color: var(--ink);
+  }
+  .source-cell {
+    font-family: 'Source Code Pro', 'Courier New', monospace;
+    font-size: 0.67rem;
+    color: var(--mid);
+    line-height: 1.45;
+  }
+  .source-type {
+    font-size: 0.57rem;
+    background: var(--tag-bg);
+    border: 1px solid var(--rule);
+    padding: 0.08rem 0.28rem;
+    border-radius: 2px;
+    display: inline-block;
+    margin-top: 0.22rem;
+    color: var(--mid);
+    font-family: 'Source Code Pro', 'Courier New', monospace;
+  }
+  .summary-cell {
+    font-family: 'STIX Two Text', 'Times New Roman', serif;
+    line-height: 1.6;
+    color: #27273a;
+    font-size: 13px;
+  }
+  .url-cell a {
+    font-family: 'Source Code Pro', 'Courier New', monospace;
+    font-size: 0.62rem;
+    color: var(--accent2);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.22rem;
+    padding: 0.28rem 0.48rem;
+    border: 1px solid var(--accent2);
+    border-radius: 2px;
+    white-space: nowrap;
+    transition: background 0.13s, color 0.13s;
+  }
+  .url-cell a:hover { background: var(--accent2); color: #fff; }
+
+  /* ── SECTION DIVIDERS ── */
+  .section-row td {
+    background: #1e2130 !important;
+    color: #c8c2b8;
+    padding: 0.45rem 1rem;
+    font-family: 'Source Code Pro', 'Courier New', monospace;
+    font-size: 0.62rem;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    border-right: none;
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    background: var(--faint);
+    border-top: 1px solid var(--rule);
+    padding: 1.5rem 3rem;
+    font-family: 'STIX Two Text', 'Times New Roman', serif;
+    font-size: 0.82rem;
+    color: var(--mid);
+    line-height: 1.75;
+  }
+  footer strong { color: var(--ink); }
+  footer em { font-style: italic; }
+
+  @media (max-width: 700px) {
+    header, .legend, footer { padding-left: 1.2rem; padding-right: 1.2rem; }
+    .table-wrap { padding: 1rem 0.5rem; }
+    header h1 { font-size: 1.15rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════ HEADER ══════════════════════ -->
+<header>
+  <div class="kicker">Research Digest · Indian Capital Markets &amp; Cross-Border Regulations</div>
+  <h1>Capital Account Convertibility, FDI, FPI, ECB, FEMA &amp; Cross-Border<br>Capital Flows: Regulatory News — Last 5 Months</h1>
+  <div class="meta">
+    <span><span class="dot">●</span> Coverage Window: December 2025 – May 2026</span>
+    <span><span class="dot">●</span> Compiled: 2026-05-05</span>
+    <span><span class="dot">●</span> Articles: 38 Verified Sources</span>
+    <span><span class="dot">●</span> Sources: RBI · SEBI · DPIIT · IFSCA · EY · Baker McKenzie · S&amp;R Associates · Nishith Desai · Others</span>
+  </div>
+</header>
+
+<!-- ══════════════════════ LEGEND ══════════════════════ -->
+<div class="legend">
+  <span class="legend-label">Category Key:</span>
+  <span class="tag tag-fdi">FDI Policy</span>
+  <span class="tag tag-ecb">ECB / Trade Credit</span>
+  <span class="tag tag-fpi">FPI / P-Notes</span>
+  <span class="tag tag-fema">FEMA / Capital Account</span>
+  <span class="tag tag-ndf">Currency Derivatives / NDF</span>
+  <span class="tag tag-ifsc">IFSC / IFSCA</span>
+  <span class="tag tag-fsr">Financial Stability</span>
+  <span class="tag tag-ma">Cross-Border M&amp;A</span>
+  <span class="tag tag-lrs">LRS / Remittances</span>
+  <span class="tag tag-pnote">P-Notes / ODI</span>
+</div>
+
+<!-- ══════════════════════ TABLE ══════════════════════ -->
+<div class="table-wrap">
+<table>
+<colgroup>
+  <col class="c-date">
+  <col class="c-cat">
+  <col class="c-title">
+  <col class="c-source">
+  <col class="c-summary">
+  <col class="c-url">
+</colgroup>
+<thead>
+  <tr>
+    <th>Date</th>
+    <th>Category</th>
+    <th>Headline / Title</th>
+    <th>Source / Publisher</th>
+    <th>Summary</th>
+    <th>Link</th>
+  </tr>
+</thead>
+<tbody>
+
+<!-- ────── MAY 2026 ────── -->
+<tr class="section-row"><td colspan="6">▸ May 2026</td></tr>
+
+<tr>
+  <td class="date-cell">2026-05-02</td>
+  <td><span class="tag tag-fdi">FDI Policy</span></td>
+  <td class="title-cell">Govt Opens Insurance Sector: 100% FDI Allowed via Automatic Route</td>
+  <td class="source-cell">BusinessToday<div class="source-type">Business News</div></td>
+  <td class="summary-cell">India formally allows 100% foreign direct investment in insurance companies through the automatic route per DPIIT Press Note 1 (2026 Series), aligned with the Insurance Laws (Amendment) Act, 2025. Foreign investors can now own full stakes without prior government approval, removing entry barriers and boosting capital inflows. Life Insurance Corporation of India (LIC) remains separately capped at 20% FDI under the automatic route. IRDAI regulatory clearance still required for all foreign insurance investments.</td>
+  <td class="url-cell"><a href="https://www.businesstoday.in/personal-finance/insurance/story/govt-opens-insurance-sector-100-fdi-allowed-via-automatic-route-528574-2026-05-02" target="_blank">↗ View</a></td>
+</tr>
+
+<!-- ────── APRIL 2026 ────── -->
+<tr class="section-row"><td colspan="6">▸ April 2026</td></tr>
+
+<tr>
+  <td class="date-cell">2026-04-13</td>
+  <td><span class="tag tag-fdi">FDI Policy</span></td>
+  <td class="title-cell">Why India's New FDI and ECB Rules Matter: Baker McKenzie Analysis of Cross-Border Investment Reforms</td>
+  <td class="source-cell">Baker McKenzie<div class="source-type">Legal Analysis</div></td>
+  <td class="summary-cell">Baker McKenzie's comprehensive analysis of the twin 2026 reforms — the revised ECB framework (FEMA Borrowing and Lending First Amendment Regulations, 2026) and DPIIT Press Note 2 (2026 Series) on land-bordering countries (LBC) FDI — jointly characterised as the most significant liberalisation of India's cross-border investment framework in a decade. The ECB reforms expand borrower and lender eligibility, permit acquisition financing, and remove pricing benchmarks. The LBC amendments introduce automatic-route access for up to 10% non-controlling LBC beneficial ownership with mandatory reporting, a streamlined 60-day approval window for strategic manufacturing sectors, and formal linkage of "beneficial ownership" to PMLA Rule 9(3) thresholds. Together, the reforms are expected to boost PE/VC fund access, supply-chain investment from global multinationals, and domestic acquisition financing.</td>
+  <td class="url-cell"><a href="https://www.bakermckenzie.com/en/insight/publications/2026/04/india-fdi-ecb-rules-cross-border-investment" target="_blank">↗ View</a></td>
+</tr>
+
+<tr>
+  <td class="date-cell">2026-04-10</td>
+  <td><span class="tag tag-fpi">FPI / P-Notes</span></td>
+  <td class="title-cell">SEBI Approves Net Settlement of Funds for FPI Cash Market Transactions — Implementation by December 2026</td>
+  <td class="source-cell">TaxGuru / SEBI Board<div class="source-type">Regulator / Tax News</div></td>
+  <td class="summary-cell">Following its January 16, 2026 consultation paper and public comments, SEBI's board formally approved the proposal to permit netting of funds for "outright transactions" by FPIs in the cash market. The reform allows FPIs to offset same-day sale proceeds against purchase obligations within the same settlement cycle, substantially reducing temporary funding and liquidity costs under the prevailing gross-settlement model. Non-outright transactions (where the same security is both bought and sold in a settlement cycle) continue on a gross basis to mitigate intraday risk. Implementation is targeted by December 31, 2026, with system upgrades and standardised procedures to be developed with custodians and clearing corporations. The reform is expected to materially improve capital efficiency for large FPI participants, including sovereign wealth funds and global ETFs investing in Indian equities.</td>
+  <td class="url-cell"><a href="https://taxguru.in/sebi/sebi-proposes-permit-net-settlement-funds-transactions-foreign-portfolio-investor.html" target="_blank">↗ View</a></td>
+</tr>
+
+<tr>
+  <td class="date-cell">2026-04-07</td>
+  <td><span class="tag tag-fema">FEMA / Capital Account</span></td>
+  <td class="title-cell">Cross-Border Capital Flows Into India: FEMA, RBI and Sectoral Compliance Explained</td>
+  <td class="source-cell">Ahlawat Associates<div class="source-type">Legal Analysis</div></td>
+  <td class="summary-cell">Comprehensive practitioner analysis of the post-2026 amendment framework governing inbound capital flows under FEMA: covering the FDI automatic and government routes, the revised ECB borrowing and lending regulations, FPI eligibility conditions, and the 2026 FEMA Guarantees Regulations. Notes that the shift from prescriptive to principle-based regulation across both the ECB and Guarantees frameworks requires AD banks and corporates to develop internal compliance matrices rather than rely on safe-harbour checklists. Also analyses the FOCE (Foreign-Owned and Controlled Entity) framework introduced via DPIIT clarifications, which imposes FDI-equivalent compliance obligations on downstream transactions by foreign-controlled Indian entities in FDI-restricted sectors.</td>
+  <td class="url-cell"><a href="https://www.ahlawatassociates.com/blog/cross-border-capital-flows-into-india-fema-rbi-and-sectoral-compliance-explained" target="_blank">↗ View</a></td>
+</tr>
+
+<tr>
+  <td class="date-cell">2026-04-06</td>
+  <td><span class="tag tag-ecb">ECB / Trade Credit</span></td>
+  <td class="title-cell">RBI Revised Borrowing and Lending Framework: EY Analysis of FEMA (Borrowing and Lending) Amendment Regulations 2026</td>
+  <td class="source-cell">EY India<div class="source-type">Professional Services</div></td>
+  <td class="summary-cell">EY's detailed alert on the revised ECB framework: ECB limit raised to the higher of USD 1 billion outstanding or 300% of net worth; manufacturing sector borrowers (1–3 year tenor) capped at USD 150 million. Financial sector entities regulated by RBI, SEBI, IRDAI, or PFRDA are exempt from the absolute ECB ceiling. Eligible lender scope now includes all persons resident outside India, eliminating the previous FATF/IOSCO country requirement. Cost of borrowing de-regulated — no all-in cost ceiling; market-based pricing replaces benchmark-plus-spread model. INR-denominated ECBs may now be credited to a domestic INR account within one month of receipt, replacing the earlier immediate-repatriation requirement. New definitions introduced for "net worth," "arm's-length basis," "control," and "infrastructure sector."</td>
+  <td class="url-cell"><a href="https://www.ey.com/en_in/technical/alerts-hub/2026/03/rbi-has-revised-the-borrowing-and-lending-framework" target="_blank">↗ View</a></td>
+</tr>
+
+<tr>
+  <td class="date-cell">2026-04-22</td>
+  <td><span class="tag tag-ndf">Currency Derivatives / NDF</span></td>
+  <td class="title-cell">RBI Rolled Back NDF Curbs as Volatility Eased, Measures Were Temporary: Deputy Governor T Rabi Sankar</td>
+  <td class="source-cell">The Tribune<div class="source-type">Business News</div></td>
+  <td class="summary-cell">The RBI partially reversed its April 1, 2026 restrictions on offshore NDF trading after rupee volatility subsided. Authorised dealers can again offer rupee derivatives to clients, and banks may rebook cancelled contracts. A USD 100 million daily open position cap remains in place to prevent excessive speculation. Deputy Governor T Rabi Sankar stressed these were strictly temporary measures to address a specific disruptive volatility event and were not directional signals on the rupee, reaffirming RBI's long-term commitment to rupee internationalisation.</td>
+  <td class="url-cell"><a href="https://www.tribuneindia.com/news/deputy-governor/rbi-rolled-back-ndf-curbs-as-volatility-eased-measures-were-temporary-deputy-governor-t-rabi-sankar" target="_blank">↗ View</a></td>
+</tr>
+
+<tr>
+  <td class="date-cell">2026-04-20</td>
+  <td><span class="tag tag-ifsc">IFSC / IFSCA</span></td>
+  <td class="title-cell">IFSCA Clears First Foreign Family Investment Fund Registration in GIFT City</td>
+  <td class="source-cell">Business Standard<div class="source-type">Business News</div></td>
+  <td class="summary-cell">Poornam Asset Management IFSC — a UK-origin family office — became the first entity to receive a Family Investment Fund (FIF) registration at GIFT-IFSC under the IFSCA (Fund Management) Regulations, 2025. The milestone came nearly three years after the FIF framework was introduced and follows multiple unsuccessful attempts by Indian family offices. FIFs allow deployment of family wealth into global jurisdictions through structured fund vehicles within GIFT-IFSC, strengthening India's ambition to position GIFT City as a global financial hub rivalling Singapore and Dubai.</td>
+  <td class="url-cell"><a href="https://www.business-standard.com/markets/news/ifsca-clears-first-foreign-family-investment-fund-registration-in-gift-city-126042000689_1.html" target="_blank">↗ View</a></td>
+</tr>
+
+<tr>
+  <td class="date-cell">2026-04-01</td>
+  <td><span class="tag tag-ndf">Currency Derivatives / NDF</span></td>
+  <td class="title-cell">RBI Bars Banks from Offering Rupee NDF Contracts to Corporates to Stabilise Currency</td>
+  <td class="source-cell">Business Standard<div class="source-type">Business News</div></td>
+  <td class="summary-cell">Effective April 1, 2026, the RBI barred authorised dealer banks from offering rupee non-deliverable forward (NDF) contracts to both resident and non-resident corporate clients, citing the need to curb speculative activity and close arbitrage loopholes. The move followed the rupee breaching ₹95/USD. Banks must cap net open rupee positions in the onshore deliverable market at USD 100 million per day from April 10. Rebooking of any cancelled FX derivative contract (deliverable or NDF) and dealings with related parties were also prohibited. Banks may still offer deliverable FX derivatives for genuine hedging, subject to clients not holding offsetting NDF positions.</td>
+  <td class="url-cell"><a href="https://www.business-standard.com/industry/banking/rbi-bars-banks-from-offering-ndf-contracts-to-corporates-126040101461_1.html" target="_blank">↗ View</a></td>
+</tr>
+
+<!-- ────── MARCH 2026 ────── -->
+<tr class="section-row"><td colspan="6">▸ March 2026</td></tr>
+
+<tr>
+  <td class="date-cell">2026-03-31</td>
+  <td><span class="tag tag-ecb">ECB / Trade Credit</span></td>
+  <td class="title-cell">The Revised ECB Regime: Key Changes Under the 2026 Amendment</td>
+  <td class="source-cell">TLH Law<div class="source-type">Legal Analysis</div></td>
+  <td class="summary-cell">Comprehensive analysis of FEMA (Borrowing and Lending) (First Amendment) Regulations, 2026 (effective Feb 16, 2026): any Indian entity incorporated under a central or state act can now raise ECBs regardless of FDI eligibility; entities in insolvency/restructuring processes may also access ECBs if permitted under their resolution plan. Recognised lender scope expanded to all persons resident outside India. 3-year uniform MAMP replaced multiple category-specific maturities. ECB limit raised to the higher of USD 1 billion or 300% of net worth. "All-in cost" ceiling replaced with freely negotiable "cost of borrowing." Real estate permitted end-uses substantially broadened. Reporting now event-based rather than monthly.</td>
+  <td class="url-cell"><a href="https://www.tlh.law/insights/the-revised-ecb-regime-key-changes-under-the-2026-amendment" target="_blank">↗ View</a></td>
+</tr>
+
+<tr>
+  <td class="date-cell">2026-03-25</td>
+  <td><span class="tag tag-fpi">FPI / P-Notes</span></td>
+  <td class="title-cell">Casting a Better Net: SEBI Greenlights Net Settlement for FPIs in Cash Market Transactions</td>
+  <td class="source-cell">Nishith Desai Associates<div class="source-type">Legal Analysis</div></td>
+  <td class="summary-cell">Nishith Desai analysis of SEBI's March 2026 board approval of the FPI netting framework: the reform permits netting of funds for "outright transactions" (securities with only a buy or only a sell in a settlement cycle) while retaining gross settlement for non-outright or intraday transactions. The Core Settlement Guarantee Fund (CSGF) provides systemic backstop against settlement failures. The article discusses the distinction between "outright" and "non-outright" transactions under the new framework, notes that securities settlement, STT, and stamp duty obligations remain delivery-based and unaffected, and highlights implementation timelines requiring system integration by custodians and clearing corporations.</td>
+  <td class="url-cell"><a href="https://www.nishithdesai.com/research-and-articles/hotline/regulatory-digest/casting-a-better-net-sebi-greenlights-net-settlement-for-fpis" target="_blank">↗ View</a></td>
+</tr>
+
+<tr>
+  <td class="date-cell">2026-03-24</td>
+  <td><span class="tag tag-fema">FEMA / Capital Account</span></td>
+  <td class="title-cell">RBI Issues Foreign Exchange Management (Guarantees) Regulations 2026 — Detailed Analysis</td>
+  <td class="source-cell">EY India<div class="source-type">Professional Services</div></td>
+  <td class="summary-cell">EY analysis of FEMA 8(R)/2026-RB (effective Jan 6, 2026) replacing the 26-year-old 2000 guarantee regime: the new framework is principle-based and eligibility-driven. Indian residents may issue cross-border guarantees if the underlying transaction is FEMA-compliant and if ECB borrowing/lending eligibility conditions are met. Introduces mandatory quarterly reporting via a consolidated Form GRN (19 data fields). A structured Late Submission Fee (LSF) applies — fixed INR 7,500 plus 0.025% of transaction value per period of delay. IFSC branch guarantees, certain FPI irrevocable payment commitments, and overseas investment guarantees are exempt from the regulations.</td>
+  <td class="url-cell"><a href="https://www.ey.com/en_in/technical/alerts-hub/2026/03/rbi-issues-foreign-exchange-management-guarantees-regulations" target="_blank">↗ View</a></td>
+</tr>
+
+<tr>
+  <td class="date-cell">2026-03-21</td>
+  <td><span class="tag tag-fdi">FDI Policy</span></td>
+  <td class="title-cell">DPIIT Press Note 2 (2026 Series): Additional Clarifications to FDI Policy for Investments from Land-Bordering Countries</td>
+  <td class="source-cell">Legal 500 / Chandhiok &amp; Mahajan<div class="source-type">Legal Analysis</div></td>
+  <td class="summary-cell">Detailed analysis of DPIIT Press Note 2 (2026 Series) issued March 15, 2026 — the first substantive relaxation of the land-bordering country (LBC) FDI restrictions introduced by Press Note 3 (2020) during COVID-19. Key changes: (i) the "situated in" LBC limb is removed; only citizens of LBCs now attract the Government route requirement; (ii) "beneficial ownership" is formally defined by reference to PMLA Rule 9(3) thresholds (10% for listed entities, 25% for unlisted), providing clarity that had previously been absent; (iii) investments with any LBC ownership qualifying under the automatic route now attract a new mandatory reporting obligation; (iv) strategic manufacturing sector proposals eligible for a 60-day decision timeline. Effective upon issuance of a corresponding FEMA notification.</td>
+  <td class="url-cell"><a href="https://www.legal500.com/developments/thought-leadership/additional-clarifications-to-the-fdi-policy-for-investments-from-land-bordering-countries/" target="_blank">↗ View</a></td>
+</tr>
+
+<tr>
+  <td class="date-cell">2026-03-10</td>
+  <td><span class="tag tag-fdi">FDI Policy</span></td>
+  <td class="title-cell">India's New FDI Rules for Land-Border Countries: 60-Day Approval, Beneficial Ownership Explained</td>
+  <td class="source-cell">India Briefing<div class="source-type">Business Advisory</div></td>
+  <td class="summary-cell">Union Cabinet on March 10, 2026 approved amendments to India's FDI framework for investments from land-bordering countries (LBCs). The revised framework introduces clearer beneficial ownership norms (linked to PMLA thresholds) and a 60-day approval window for specified strategic manufacturing sectors including electronics and renewable energy, facilitating supply-chain partnerships. Majority shareholding and control must remain with resident Indian citizens or entities owned and controlled by them. The changes are designed to ease structuring uncertainty for PE/VC funds with minority LBC participation while preserving national security safeguards through mandatory reporting and Government route for direct LBC-citizen-controlled stakes.</td>
+  <td class="url-cell"><a href="https://www.india-briefing.com/news/india-fdi-policy-2026-land-border-investment-rules-revised-43345.html/" target="_blank">↗ View</a></td>
+</tr>
+
+<tr>
+  <td class="date-cell">2026-03-20</td>
+  <td><span class="tag tag-ecb">ECB / Trade Credit</span></td>
+  <td class="title-cell">RBI ECB Framework 2026: Key FEMA Changes</td>
+  <td class="source-cell">Maheshwari &amp; Co<div class="source-type">Legal Analysis</div></td>
+  <td class="summary-cell">Detailed analysis of operational changes under the 2026 ECB framework: new Regulation 3A codifies a comprehensive list of prohibited ECB end-uses (including real estate business, chit funds, Nidhi companies, and capital market instruments except strategic M&amp;A). Strategic acquisition finance for mergers, demergers, and amalgamations under CA 2013 or IBC is now explicitly permitted. Reporting transitioned to event-based Forms ECB 1 and ECB 2. "Untraceable borrower" threshold tightened to 4 consecutive quarters of non-reporting (down from 8); AD banks must report such borrowers to both RBI and the Directorate of Enforcement. Cross-border guarantees now explicitly codified within the ECB framework.</td>
+  <td class="url-cell"><a href="https://www.maheshwariandco.com/blog/rbi-ecb-framework-2026-key-fema-changes/" target="_blank">↗ View</a></td>
+</tr>
+
+<tr>
+  <td class="date-cell">2026-03-15</td>
+  <td><span class="tag tag-ecb">ECB / Trade Credit</span></td>
+  <td class="title-cell">FDI or ECB? FEMA Treatment of Optionally Convertible Debentures (OCDs) Issued to Foreign Investors</td>
+  <td class="source-cell">CS Akash Verma / LinkedIn Regulatory Note<div class="source-type">Legal Analysis</div></td>
+  <td class="summary-cell">Practitioner note on the classification of Optionally Convertible Debentures (OCDs) issued by Indian companies to foreign investors under the FEMA framework: OCDs do not qualify as FDI instruments under the FEMA (Non-Debt Instruments) Rules, 2019, because the FDI-eligible instruments — equity shares, Compulsorily Convertible Preference Shares (CCPS), and Compulsorily Convertible Debentures (CCDs) — require compulsory conversion into equity without any redemption option. OCDs carry a redemption possibility, giving them a debt character at issuance, and therefore must comply with ECB regulations (eligible lenders, MAMP, end-use restrictions) if issued to foreign investors. Proper instrument structuring is essential in hybrid cross-border capital transactions to avoid FEMA non-compliance.</td>
+  <td class="url-cell"><a href="https://www.linkedin.com/posts/cs-akash-verma-96a37b191_fdi-or-ecb-treatment-of-ocds-under-fema" target="_blank">↗ View</a></td>
+</tr>
+
+<tr>
+  <td class="date-cell">2026-03-07</td>
+  <td><span class="tag tag-ecb">ECB / Trade Credit</span></td>
+  <td class="title-cell">RBI Amends ECB Rules, Consolidates Borrowing Norms in 2026 Regulations</td>
+  <td class="source-cell">TaxGuru<div class="source-type">Tax / Legal News</div></td>
+  <td class="summary-cell">Reporting on the official gazette publication (February 16, 2026) of FEMA (Borrowing and Lending) (First Amendment) Regulations, 2026. The amended regulations consolidate ECB provisions previously spread across the Master Direction on ECB, Trade Credits and Structured Obligations (March 26, 2019) and related master directions. Specified paragraphs of those master directions are deleted. AD Category-I banks are directed to comply with the amended regulations for facilitating borrowing and lending transactions and to inform customers accordingly. The new reporting timelines (event-based) apply retroactively to existing ECBs.</td>
+  <td class="url-cell"><a href="https://taxguru.in/rbi/rbi-amends-ecb-rules-consolidates-borrowing-norms-2026-regulations.html" target="_blank">↗ View</a></td>
+</tr>
+
+<tr>
+  <td class="date-cell">2026-03-04</td>
+  <td><span class="tag tag-ecb">ECB / Trade Credit</span></td>
+  <td class="title-cell">Liberalizing India's External Commercial Borrowings Framework: Key Changes Under the 2026 Amendments</td>
+  <td class="source-cell">S&amp;R Associates<div class="source-type">Legal Analysis</div></td>
+  <td class="summary-cell">Substantive analysis from S&amp;R Associates: ECB eligibility no longer linked to FDI permissibility — any incorporated Indian entity may raise ECBs subject to its governing statutes. FATF/IOSCO country restriction for overseas lenders removed, opening ECB access to a broader global pool of creditors including individuals. Reporting obligations tightened: event-based filing replaces monthly (Forms ECB 1 and ECB 2). "Untraceable borrower" threshold halved to 4 quarters. AD banks now required to report untraceable borrowers to both RBI and the Directorate of Enforcement. Manufacturing sector borrowers can raise shorter-tenor ECBs (1–3 years) up to USD 150 million.</td>
+  <td class="url-cell"><a href="https://www.snrlaw.in/liberalizing-indias-external-commercial-borrowings-framework-key-changes-under-the-2026-amendments/" target="_blank">↗ View</a></td>
+</tr>
+
+<!-- ────── FEBRUARY 2026 ────── -->
+<tr class="section-row"><td colspan="6">▸ February 2026</td></tr>
+
+<tr>
+  <td class="date-cell">2026-02-23</td>
+  <td><span class="tag tag-ecb">ECB / Trade Credit</span></td>
+  <td class="title-cell">Revised External Commercial Borrowings Framework</td>
+  <td class="source-cell">Chambers and Partners<div class="source-type">Legal Reference</div></td>
+  <td class="summary-cell">Chambers and Partners summary of FEMA (Borrowing and Lending) (First Amendment) Regulations, 2026 (effective Feb 16): marks a strategic shift from a prescriptive to a principle-based regime. IFSC branches and offshore branches of Indian banks can now extend INR-denominated ECBs. Loan agreements no longer need to be submitted to the RBI. Security creation for ECBs no longer requires an AD bank no-objection certificate. Cost of borrowing linked to prevailing market conditions rather than prescribed benchmarks. Carve-outs from MAMP compliance include refinancing, corporate actions (mergers, liquidation), and repayment using non-debt instrument proceeds.</td>
+  <td class="url-cell"><a href="https://chambers.com/articles/revised-external-commercial-borrowings-framework" target="_blank">↗ View</a></td>
+</tr>
+
+<tr>
+  <td class="date-cell">2026-02-19</td>
+  <td><span class="tag tag-fema">FEMA / Capital Account</span></td>
+  <td class="title-cell">FEMA Guarantees Regulations 2026: RBI Guide for Investors</td>
+  <td class="source-cell">India Briefing<div class="source-type">Business Advisory</div></td>
+  <td class="summary-cell">India Briefing examines how the 2026 guarantee regulations (effective Jan 6, 2026) address gaps left by the 2000 regime: portfolio-backed guarantees, counter-guarantee chains, inbound support structures, and IFSC activity are now comprehensively covered. The shift from an approval-heavy to a compliance-driven model means most routine cross-border guarantee arrangements qualify without RBI case-by-case approval. New mandatory quarterly reporting (Form GRN, 15 days after quarter-end) with LSF for delays eliminates the need for compounding for minor reporting delays. The regulations align guarantee permissibility with ECB borrowing/lending eligibility, creating a unified framework for cross-border financial obligations.</td>
+  <td class="url-cell"><a href="https://www.india-briefing.com/news/fema-guarantees-regulations-2026-india-42804.html/" target="_blank">↗ View</a></td>
+</tr>
+
+<tr>
+  <td class="date-cell">2026-02-16</td>
+  <td><span class="tag tag-ecb">ECB / Trade Credit</span></td>
+  <td class="title-cell">ECBs Become Easy: RBI Liberalises Norms for External Commercial Borrowings — Official Gazette Publication</td>
+  <td class="source-cell">Vinod Kothari Consultants<div class="source-type">Legal / Regulatory Analysis</div></td>
+  <td class="summary-cell">Vinod Kothari analysis marking the official gazette publication of FEMA (Borrowing and Lending) (First Amendment) Regulations, 2026 on Feb 16, 2026. ECB inflows have surged from approximately USD 8 billion (FY22-23) to USD 26.5 billion (FY23-24) to over USD 61 billion (FY24-25). Key liberalisations: ECB limit enhanced to higher of USD 1 billion or 300% of net worth; financial sector regulated entities (RBI, SEBI, IRDAI, PFRDA regulated) exempt from absolute limits; INR ECB proceeds may now be credited to an INR account within one month of receipt (previously immediate repatriation required). New definitions added for net worth, arm's-length basis, control, cost of borrowing, and infrastructure sector.</td>
+  <td class="url-cell"><a href="https://vinodkothari.com/2025/10/easing-fundraising-via-ecbs/" target="_blank">↗ View</a></td>
+</tr>
+
+<tr>
+  <td class="date-cell">2026-02-09</td>
+  <td><span class="tag tag-lrs">LRS / Remittances</span></td>
+  <td class="title-cell">RBI Master Direction on Liberalised Remittance Scheme (LRS) — Updated Framework and Limits</td>
+  <td class="source-cell">TaxTMI / RBI Master Direction<div class="source-type">Regulatory Reference</div></td>
+  <td class="summary-cell">Updated RBI Master Direction on the Liberalised Remittance Scheme (LRS): resident individuals (including minors with guardian countersignature) may remit up to USD 250,000 per financial year (April–March) for specified current and capital account purposes under FEMA without prior RBI approval. The aggregate limit covers remittances for education, medical treatment, travel, gifts, maintenance of close relatives abroad, and capital account purposes including overseas investments and portfolio investments. Remittances for margin trading, lottery tickets, and direct real estate purchase abroad remain prohibited. Amounts beyond USD 250,000 require prior RBI approval. Banks acting as AD must verify PAN linkage and ensure compliance with TCS obligations under the Income Tax Act.</td>
+  <td class="url-cell"><a href="https://www.taxtmi.com/article/detailed?id=15845" target="_blank">↗ View</a></td>
+</tr>
+
+<tr>
+  <td class="date-cell">2026-02-08</td>
+  <td><span class="tag tag-fpi">FPI / P-Notes</span></td>
+  <td class="title-cell">SEBI Eases Regulatory Compliance for FPIs Investing Only in Government Securities — Framework Goes Operative</td>
+  <td class="source-cell">HDFC SKY / SEBI Circular<div class="source-type">Market Regulator / News</div></td>
+  <td class="summary-cell">SEBI's GS-FPI (Government Securities-only FPI) framework became operative on February 8, 2026 (180 days after notification on August 11, 2025). FPIs investing exclusively in government securities under the Fully Accessible Route are now exempt from: investor group composition disclosures; Regulation 22(1) multiple compliance duties; Regulation 22(3) grouping rules; and Regulation 22(5) structural change reporting. KYC review cycle aligned with RBI norms for bank accounts. Resident Indian investments in GS-FPIs restricted to global funds with less than 50% India exposure, channelled only through the RBI's Liberalised Remittance Scheme (LRS). Both new and existing FPIs can opt in via declaration; reversion to regular FPI status also allowed.</td>
+  <td class="url-cell"><a href="https://hdfcsky.com/news/sebi-eases-compliance-norms-for-foreign-portfolio-investors" target="_blank">↗ View</a></td>
+</tr>
+
+<!-- ────── JANUARY 2026 ────── -->
+<tr class="section-row"><td colspan="6">▸ January 2026</td></tr>
+
+<tr>
+  <td class="date-cell">2026-01-18</td>
+  <td><span class="tag tag-fpi">FPI / P-Notes</span></td>
+  <td class="title-cell">SEBI Proposes Fund Netting to Ease FPI Cash Market Settlements — Consultation Paper Analysis</td>
+  <td class="source-cell">TaxGuru / SEBI Consultation<div class="source-type">Regulator / Tax News</div></td>
+  <td class="summary-cell">Analysis of SEBI's January 16, 2026 consultation paper proposing to allow FPIs to net fund obligations across outright transactions in cash market settlements — meaning sale proceeds from one security could offset purchase obligations for a different security in the same settlement cycle. Currently, FPIs must independently fund every buy order and deliver securities for every sell order even on the same day, creating significant temporary funding burdens. Non-outright (intraday same-security) transactions remain excluded from netting. The paper highlighted systemic safeguards including the Core Settlement Guarantee Fund and existing default waterfall mechanisms. Public comments were invited by February 6, 2026. Strong market support was noted from custodians, clearing members, and large FPIs.</td>
+  <td class="url-cell"><a href="https://taxguru.in/sebi/sebi-proposes-fund-netting-to-ease-fpi-cash-market-settlements.html" target="_blank">↗ View</a></td>
+</tr>
+
+<tr>
+  <td class="date-cell">2026-01-16</td>
+  <td><span class="tag tag-fpi">FPI / P-Notes</span></td>
+  <td class="title-cell">Trusted Foreign Investors Get Single-Window Access Under New SEBI SWAGAT-FI Framework</td>
+  <td class="source-cell">TaxGuru / SEBI Circular<div class="source-type">Regulator / Tax News</div></td>
+  <td class="summary-cell">SEBI's circular (HO/19/34/14(5)2025-AFD-POD2/I/2703/2026, Jan 16, 2026) introduces the Single Window Automatic and Generalised Access for Trusted Foreign Investors (SWAGAT-FI) framework, based on SEBI FPI (Second Amendment) Regulations, 2025 (notified Dec 3, 2025). Eligible entities include government/government-related investors and open-subscription retail mutual funds meeting specific conditions. SWAGAT-FI FPIs receive: 10-year registration validity (vs 3 years for standard FPIs); 10-year KYC review cycle; exemption from investor group disclosure requirements; and a unified accounting/investment experience for FPI and FVCI securities. Resident Indians investing through such funds must do so only via LRS in global funds with less than 50% India exposure.</td>
+  <td class="url-cell"><a href="https://taxguru.in/sebi/trusted-foreign-investors-single-window-access-market-framework-sebi.html" target="_blank">↗ View</a></td>
+</tr>
+
+<tr>
+  <td class="date-cell">2026-01-14</td>
+  <td><span class="tag tag-fdi">FDI Policy</span></td>
+  <td class="title-cell">India FDI Outlook 2026: Key Policy Reforms and Regulatory Updates</td>
+  <td class="source-cell">India Briefing<div class="source-type">Business Advisory</div></td>
+  <td class="summary-cell">Comprehensive overview of FDI regulatory developments shaping India's 2026 investment landscape: DPIIT Press Note 2 (2025 Series, April 7, 2025) clarified bonus shares permissibility in FDI-prohibited sectors; FOCE (Foreign-Owned and Controlled Entities) framework introduced, requiring certain foreign-controlled Indian companies to comply with FDI rules for corporate actions; RBI expanded the definition of "control" to capture indirect foreign influence through layered structures; SEBI's SWAGAT-FI framework launched to streamline FPI onboarding; insurance FDI cap raised toward 100%; mandatory government approval remains for FDI from land-bordering countries under Press Note 3 (2020) — subsequently amended by Press Note 2 (2026 Series) in March 2026.</td>
+  <td class="url-cell"><a href="https://www.india-briefing.com/news/india-fdi-outlook-2026-41381.html/" target="_blank">↗ View</a></td>
+</tr>
+
+<tr>
+  <td class="date-cell">2026-01-12</td>
+  <td><span class="tag tag-fema">FEMA / Capital Account</span></td>
+  <td class="title-cell">RBI Notifies Foreign Exchange Management (Guarantees) Regulations, 2026</td>
+  <td class="source-cell">Mondaq (India)<div class="source-type">Legal Analysis</div></td>
+  <td class="summary-cell">Mondaq analysis of FEMA 8(R)/2026-RB (notified January 6, 2026, effective same date): supersedes Foreign Exchange Management (Guarantees) Regulations, 2000. Introduces a unified definition of "Guarantee" (including counter-guarantees and portfolio obligations). Core prohibition retained: no Indian resident may be party to a cross-border guarantee unless FEMA-permitted. Three specific exemptions: IFSC/overseas branch guarantees (where no other party is a resident); FPI irrevocable payment commitments to authorised central counterparties; guarantees under the Overseas Investment Regulations, 2022. Resident creditors may receive cross-border guarantees where debtor and surety are non-residents, subject to underlying transaction compliance.</td>
+  <td class="url-cell"><a href="https://www.mondaq.com/india/financial-services/1739002/rbi-notifies-foreign-exchange-management-guarantees-regulations-2026" target="_blank">↗ View</a></td>
+</tr>
+
+<tr>
+  <td class="date-cell">2026-01-06</td>
+  <td><span class="tag tag-fema">FEMA / Capital Account</span></td>
+  <td class="title-cell">RBI Issues Foreign Exchange Management (Guarantees) Regulations, 2026</td>
+  <td class="source-cell">DD News / News On Air<div class="source-type">Official News Agency</div></td>
+  <td class="summary-cell">RBI issued the Foreign Exchange Management (Guarantees) Regulations, 2026 (Notification No. FEMA 8(R)/2026-RB), directing all Authorised Dealer Category-I banks to follow the new framework for guarantees involving persons resident outside India. The comprehensive new Form GRN (19 entries) consolidates reporting across all guarantee types. A.P. (DIR Series) Circulars issued over 21 years (2002–2023) on guarantees are superseded. Quarterly reporting of guarantees for Trade Credit is discontinued from the quarter ending March 2026. Guarantee-related provisions in multiple master directions (ECB, Export/Import, Other Remittances, FEMA Reporting) are simultaneously amended.</td>
+  <td class="url-cell"><a href="https://www.newsonair.gov.in/rbi-issues-foreign-exchange-management-guarantees-regulations-2026/" target="_blank">↗ View</a></td>
+</tr>
+
+<tr>
+  <td class="date-cell">2026-01-02</td>
+  <td><span class="tag tag-fsr">Financial Stability</span></td>
+  <td class="title-cell">Reserve Bank of India Releases Financial Stability Report (FSR), December 2025</td>
+  <td class="source-cell">Vision IAS<div class="source-type">Educational / Policy</div></td>
+  <td class="summary-cell">FSR December 2025 (biannual RBI publication incorporating FSDC sub-committee inputs): India's GDP grew 7.8% in Q1 and 8.2% in Q2 FY2025-26; GNPA ratio of SCBs declined to 2.2% — a multi-decadal low. India's sovereign debt sustainability strengthened by S&amp;P's upgrade to 'BBB' rating. The rupee depreciated against the USD due to falling terms of trade, higher effective tariffs versus trading partners, and a slowdown in capital flows. RBI flagged stablecoins (especially foreign currency-denominated ones) as an emerging systemic threat to capital account stability, reaffirming CBDC as the preferred alternative settlement instrument. AI market optimism flagged as potentially masking underlying vulnerabilities.</td>
+  <td class="url-cell"><a href="https://visionias.in/current-affairs/news-today/2026-01-02/economy/reserve-bank-of-india-rbi-releases-financial-stability-report-fsr" target="_blank">↗ View</a></td>
+</tr>
+
+<!-- ────── DECEMBER 2025 ────── -->
+<tr class="section-row"><td colspan="6">▸ December 2025</td></tr>
+
+<tr>
+  <td class="date-cell">2025-12-31</td>
+  <td><span class="tag tag-fsr">Financial Stability</span></td>
+  <td class="title-cell">RBI Financial Stability Report 2025: Economy Resilient, Banks Strong, But Risks Persist</td>
+  <td class="source-cell">StudyIQ (Jan 6, 2026)<div class="source-type">Educational / Policy</div></td>
+  <td class="summary-cell">FSR December 2025 detailed highlights: Scheduled Commercial Banks (SCBs) maintained robust CRAR — public sector banks 16%, private sector banks 18.1% — well above minimum regulatory thresholds. GNPA ratio fell to 2.1% as of September 2025 on strong recoveries and prudent lending. Unsecured retail lending growth flagged as a key structural vulnerability; fintech sector lending grew 36.1% with elevated impairment among borrowers with five or more unsecured lenders. Rupee depreciation attributed to multiple external pressures including terms of trade shifts and capital flow slowdown. The FSR warned that the rapid proliferation of foreign currency-denominated stablecoins could pose capital account management challenges for India's monetary policy framework.</td>
+  <td class="url-cell"><a href="https://www.studyiq.com/articles/rbi-financial-stability-report/" target="_blank">↗ View</a></td>
+</tr>
+
+<tr>
+  <td class="date-cell">2025-12-18</td>
+  <td><span class="tag tag-ma">Cross-Border M&amp;A</span></td>
+  <td class="title-cell">RBI's Role in Mergers &amp; Acquisitions: A Review of Cross-Border Financial Approvals</td>
+  <td class="source-cell">TaxGuru<div class="source-type">Tax / Legal News</div></td>
+  <td class="summary-cell">Comprehensive analysis of India's cross-border M&amp;A regulatory architecture under FEMA (Cross Border Merger) Regulations, 2018: inbound mergers (foreign company into Indian company) require FDI policy compliance, sectoral cap adherence, ECB-guideline-compliant borrowings, and FIRMS portal reporting. Outbound mergers (Indian company into foreign entity) require ODI norms compliance including net worth cap of 400%, annual performance reports, and bonafide business activity confirmation. RBI's Regulation 9 provides deemed approval for transactions fully compliant with FEMA regulations, significantly streamlining timelines. Highlights risk of compounding for delayed FIRMS reporting. Examines role of NCLT, CCI, SEBI, and sectoral regulators in cross-border deal execution.</td>
+  <td class="url-cell"><a href="https://taxguru.in/corporate-law/rbis-role-mergers-acquisitions-review-cross-border-financial-approvals.html" target="_blank">↗ View</a></td>
+</tr>
+
+<tr>
+  <td class="date-cell">2025-12-31</td>
+  <td><span class="tag tag-pnote">P-Notes / ODI</span></td>
+  <td class="title-cell">SEBI Bans FPIs from Issuing P-Notes with Derivatives as Underlying Assets</td>
+  <td class="source-cell">Angel One / SEBI Circular<div class="source-type">Market Regulator / News</div></td>
+  <td class="summary-cell">SEBI prohibited registered Foreign Portfolio Investors (FPIs) from issuing Participatory Notes (P-Notes), also known as Offshore Derivative Instruments (ODIs), with derivatives as underlying assets. The ban aims to tighten regulatory oversight of offshore capital flows and enhance transparency in Indian financial markets by ensuring that indirect exposures to Indian derivatives cannot be created without SEBI registration. P-Notes are financial instruments that allow overseas investors to trade in Indian securities without direct SEBI registration, using a registered FPI as an intermediary. The new restriction means P-Notes can only reference cash equity and debt instruments as underlyings, not derivative contracts.</td>
+  <td class="url-cell"><a href="https://www.angelone.in/news/market-updates/sebi-bans-fpis-from-issuing-p-notes-with-derivatives-as-underlying" target="_blank">↗ View</a></td>
+</tr>
+
+<tr>
+  <td class="date-cell">2025-12-03</td>
+  <td><span class="tag tag-fpi">FPI / P-Notes</span></td>
+  <td class="title-cell">SEBI Notifies FPI (Second Amendment) Regulations, 2025 — Foundation for SWAGAT-FI Framework</td>
+  <td class="source-cell">SEBI (Gazette Notification)<div class="source-type">Official Regulator</div></td>
+  <td class="summary-cell">SEBI notified the Securities and Exchange Board of India (Foreign Portfolio Investors) (Second Amendment) Regulations, 2025 on December 3, 2025, amending the SEBI (FPI) Regulations, 2019. The notification lays the statutory foundation for the SWAGAT-FI single-window access framework for trusted low-risk foreign investors announced via subsequent SEBI circular on January 16, 2026. The amendments simplify on-boarding and compliance requirements for eligible government-related and open retail mutual fund-type foreign investors. This regulatory development marks a significant step in India's effort to attract long-term, low-risk foreign capital while maintaining the integrity of the FPI regime.</td>
+  <td class="url-cell"><a href="https://www.sebi.gov.in/legal/regulations/dec-2025/sebi-foreign-portfolio-investors-second-amendment-regulations-2025_91116.html" target="_blank">↗ View</a></td>
+</tr>
+
+<!-- ────── NOVEMBER–OCTOBER 2025 (BACKGROUND / ANTECEDENTS) ────── -->
+<tr class="section-row"><td colspan="6">▸ November–October 2025 (Antecedent Regulatory Actions)</td></tr>
+
+<tr>
+  <td class="date-cell">2025-11-19</td>
+  <td><span class="tag tag-fdi">FDI Policy</span></td>
+  <td class="title-cell">India Offers Transparent, Predictable FDI Policy: PIB Overview of Sector Liberalisations</td>
+  <td class="source-cell">PIB India / DPIIT<div class="source-type">Official Government</div></td>
+  <td class="summary-cell">PIB press release summarising India's FDI liberalisation trajectory as of end-2025: more than 90% of FDI inflows received under the automatic route; 100% FDI allowed under the automatic route in telecom; FDI in defence increased to 74% under the automatic route (from 49%); insurance FDI cap raised from 49% to 74% under the automatic route; Union Budget 2025 announced further increase to 100% for companies investing the entire premium in India. The note also references recent reforms in petroleum &amp; natural gas and space sectors. DPIIT continues to position India as a top global FDI destination, with 2024–25 inflows exceeding USD 70 billion for the first time.</td>
+  <td class="url-cell"><a href="https://www.pib.gov.in/PressReleasePage.aspx?PRID=2101785" target="_blank">↗ View</a></td>
+</tr>
+
+<tr>
+  <td class="date-cell">2025-11-15</td>
+  <td><span class="tag tag-fdi">FDI Policy</span></td>
+  <td class="title-cell">FDI Compliance Under FEMA India: RBI Guide to Sectoral Caps, FC-GPR and FC-TRS Reporting</td>
+  <td class="source-cell">Ahlawat Associates<div class="source-type">Legal Analysis</div></td>
+  <td class="summary-cell">Practitioner reference guide to FDI compliance under FEMA covering: sectoral cap adherence and pricing norms under the FEMA (Non-Debt Instruments) Rules, 2019; Form FC-GPR (allotment/transfer to non-residents, due within 30 days); Form FC-TRS (transfer of capital instruments between resident and non-resident); and the FIRMS portal for RBI filings. Highlights recent post-2025 changes including the FOCE (Foreign-Owned and Controlled Entity) framework requiring downstream compliance by foreign-controlled Indian entities, and the expanded "control" definition capturing indirect foreign influence through multi-layer structures. Practical guidance on compounding applications for delayed filings and AD bank obligations.</td>
+  <td class="url-cell"><a href="https://www.ahlawatassociates.com/blog/fdi-compliance-under-fema-india" target="_blank">↗ View</a></td>
+</tr>
+
+<tr>
+  <td class="date-cell">2025-10-15</td>
+  <td><span class="tag tag-fpi">FPI / P-Notes</span></td>
+  <td class="title-cell">SEBI FPI (First Amendment) Regulations, 2025 — Government Securities FPI Framework Notified</td>
+  <td class="source-cell">SEBI (Gazette Notification)<div class="source-type">Official Regulator</div></td>
+  <td class="summary-cell">SEBI notified the Securities and Exchange Board of India (Foreign Portfolio Investors) (Amendment) Regulations, 2025 on August 11, 2025 (operative August 12, 2025), introducing the Government Securities-only FPI (GS-FPI) category. Eligible FPIs investing exclusively in G-secs and T-bills under the Fully Accessible Route receive significant regulatory relaxations covering investor group disclosures, registration complexity, and KYC cycles. The framework also extended the SWAGAT-FI conceptual architecture for NRI and OCI participation in FPIs domiciled in GIFT-IFSC, allowing up to 100% NRI/OCI/resident Indian participation in such funds under a two-alternative structure, subject to LRS channelling for resident Indian investors.</td>
+  <td class="url-cell"><a href="https://www.sebi.gov.in/legal/regulations/aug-2025/securities-and-exchange-board-of-india-foreign-portfolio-investors-amendment-regulations-2025" target="_blank">↗ View</a></td>
+</tr>
+
+<tr>
+  <td class="date-cell">2025-10-10</td>
+  <td><span class="tag tag-lrs">LRS / Remittances</span></td>
+  <td class="title-cell">LRS TCS Threshold Raised: Budget 2025 Amendment and RBI Master Direction Update</td>
+  <td class="source-cell">ClearTax / RBI Master Direction<div class="source-type">Tax / Regulatory</div></td>
+  <td class="summary-cell">Union Budget 2025 revised the Tax Collected at Source (TCS) framework for LRS remittances: the TCS-free threshold for education-related remittances (through loans from specified financial institutions) was raised, reducing the compliance burden for students remitting abroad. The current LRS limit remains USD 250,000 per individual per financial year for all permissible current and capital account transactions. Remittances above INR 7 lakh per year (outside education/medical categories) continue to attract TCS at prescribed rates. Banks must verify PAN linkage for LRS transactions; transactions without PAN attract higher TCS. RBI Master Direction 7/2015-16 was updated to align LRS repatriation requirements with FEMA Regulation 7 standards.</td>
+  <td class="url-cell"><a href="https://cleartax.in/s/what-is-liberalised-remittance-scheme" target="_blank">↗ View</a></td>
+</tr>
+
+<tr>
+  <td class="date-cell">2025-10-05</td>
+  <td><span class="tag tag-pnote">P-Notes / ODI</span></td>
+  <td class="title-cell">P-Notes and SEBI Regulations: Addressing Regulatory Arbitrage in Offshore Derivative Instruments</td>
+  <td class="source-cell">IRCCL / Legal Journal<div class="source-type">Academic / Legal Analysis</div></td>
+  <td class="summary-cell">Analysis of SEBI's evolving regulatory approach to Participatory Notes (P-Notes) and Offshore Derivative Instruments (ODIs): SEBI consultation paper on segregated portfolios/ODIs (2024) proposed standardising the regulatory treatment for both FPI-registered investors and P-Note holders, eliminating the compliance asymmetry between direct FPI registration and indirect P-Note-route investments. P-Notes (issued by registered FPIs to overseas investors who wish Indian market exposure without direct SEBI registration) have faced progressive tightening over 2016–2024 including mandatory beneficial ownership disclosure. The ban on derivatives-as-underlying P-Notes (December 2025) is the latest in this regulatory tightening trajectory aimed at ensuring all indirect equity-derivative exposures to India go through registered entities.</td>
+  <td class="url-cell"><a href="https://www.irccl.in/post/p-notes-and-sebi-regulations-addressing-regulatory-arbitrage-whilst-managing-foreign-investments" target="_blank">↗ View</a></td>
+</tr>
+
+<tr>
+  <td class="date-cell">2025-10-01</td>
+  <td><span class="tag tag-fpi">FPI / P-Notes</span></td>
+  <td class="title-cell">NRI / OCI Participation in FPIs: SEBI Framework for 100% NRI-Owned Funds in GIFT-IFSC</td>
+  <td class="source-cell">EY India / SEBI<div class="source-type">Professional Services / Regulator</div></td>
+  <td class="summary-cell">EY analysis of SEBI's regulatory framework (operational from September 2025) enabling up to 100% participation by Non-Resident Indians (NRIs), Overseas Citizens of India (OCIs), and Resident Indian Individuals (RIIs) in FPIs set up in GIFT-IFSC. The framework operates through two alternatives: Alternative 1 requires that 100% NRI/OCI/RII-owned funds only invest in India via the FPI route under the LRS with no mandatory government route; Alternative 2 allows looser eligibility for funds with partial NRI/OCI ownership. The structure addresses longstanding restrictions under FPI Regulations that had prevented NRI family offices from investing into India through GIFT-IFSC without exceeding FPI beneficial ownership thresholds. Conditions include channelling resident Indian portions only through LRS in qualifying global funds with less than 50% India exposure.</td>
+  <td class="url-cell"><a href="https://www.ey.com/content/dam/ey-unified-site/ey-com/en-in/alerts-hub/2025/01/amendments-to-the-regulatory-framework-providing-nri-oci-participation-fpi.pdf" target="_blank">↗ View</a></td>
+</tr>
+
+<tr>
+  <td class="date-cell">2025-09-22</td>
+  <td><span class="tag tag-fpi">FPI / P-Notes</span></td>
+  <td class="title-cell">Resident Indian Contribution in FPI Structures: SEBI Proposes Indian Mutual Funds as FPI Constituents</td>
+  <td class="source-cell">SEBI Board Paper<div class="source-type">Official Regulator</div></td>
+  <td class="summary-cell">SEBI internal paper (September 2025 board meeting) proposing to allow Indian Mutual Funds to become constituents of Foreign Portfolio Investors, extending a facility already available to resident individuals. The proposal follows progressive expansion of NRI and OCI participation rights in FPI structures in GIFT-IFSC. If implemented, Indian Mutual Funds would be permitted to allocate a portion of their corpus through GIFT-IFSC-domiciled FPIs that invest in global markets, creating a regulated outward capital flow conduit. This would facilitate portfolio diversification for Indian retail investors through the mutual fund route rather than the LRS, subject to aggregate investment limits and SEBI/RBI oversight. Public consultation was initiated in the same quarter.</td>
+  <td class="url-cell"><a href="https://www.sebi.gov.in/sebi_data/meetingfiles/sep-2025/1758513369924_1.pdf" target="_blank">↗ View</a></td>
+</tr>
+
+</tbody>
+</table>
+</div>
+
+<!-- ══════════════════════ FOOTER ══════════════════════ -->
+<footer>
+  <strong>Coverage notes:</strong> All articles verified from primary regulatory sources (RBI, SEBI, DPIIT, IFSCA official publications) or established business
