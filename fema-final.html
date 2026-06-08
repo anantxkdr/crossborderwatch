@@ -1,0 +1,1475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FEMAWatch — Regulatory Intelligence Portal</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;1,9..144,300&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            navy: { 950: '#040d1a', 900: '#0F172A', 800: '#1E293B', 700: '#334155', 600: '#475569' },
+            teal: { 600: '#0D9488', 500: '#14B8A6', 400: '#2DD4BF', 100: '#CCFBF1' },
+            amber: { 500: '#F59E0B', 400: '#FBBF24', 100: '#FEF3C7' },
+            slate: { 50: '#F8FAFC', 100: '#F1F5F9', 200: '#E2E8F0', 300: '#CBD5E1', 400: '#94A3B8', 500: '#64748B' },
+          },
+          fontFamily: {
+            sans: ['IBM Plex Sans', 'system-ui', 'sans-serif'],
+            serif: ['Fraunces', 'Georgia', 'serif'],
+            mono: ['DM Mono', 'monospace'],
+          },
+          animation: {
+            'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+            'slide-in-right': 'slideInRight 0.35s cubic-bezier(0.16, 1, 0.3, 1)',
+            'slide-in-down': 'slideInDown 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
+            'fade-in': 'fadeIn 0.3s ease-out',
+          },
+          keyframes: {
+            slideInRight: { from: { transform: 'translateX(100%)', opacity: '0' }, to: { transform: 'translateX(0)', opacity: '1' } },
+            slideInDown: { from: { transform: 'translateY(-16px)', opacity: '0' }, to: { transform: 'translateY(0)', opacity: '1' } },
+            fadeIn: { from: { opacity: '0' }, to: { opacity: '1' } },
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body { height: 100%; margin: 0; overflow: hidden; }
+    body { font-family: 'IBM Plex Sans', system-ui, sans-serif; background: #F8FAFC; }
+
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 99px; }
+    ::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
+
+    .sidebar-nav-item { transition: all 0.18s ease; }
+    .sidebar-nav-item:hover { background: rgba(255,255,255,0.08); }
+    .sidebar-nav-item.active { background: rgba(13,148,136,0.18); border-left: 2px solid #0D9488; }
+    .sidebar-nav-item.active .nav-label { color: #2DD4BF; }
+    .sidebar-nav-item.active .nav-icon { color: #2DD4BF; }
+
+    .card { transition: box-shadow 0.2s ease, transform 0.2s ease; }
+    .card:hover { box-shadow: 0 4px 24px rgba(15,23,42,0.10); transform: translateY(-1px); }
+
+    .save-btn.saved svg { fill: #F59E0B; color: #F59E0B; }
+
+    .drawer-overlay { transition: opacity 0.3s ease; }
+    .drawer-panel { transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1); }
+    .drawer-panel.hidden-drawer { transform: translateX(100%); }
+    .drawer-panel.visible-drawer { transform: translateX(0); }
+
+    .alert-banner { animation: slideInDown 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+
+    .pulse-dot::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      background: #22c55e;
+      animation: ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite;
+    }
+    @keyframes ping {
+      75%, 100% { transform: scale(1.8); opacity: 0; }
+    }
+
+    .filter-chip { transition: all 0.15s ease; cursor: pointer; }
+    .filter-chip.active { background: #0D9488; color: white; border-color: #0D9488; }
+    .filter-chip:not(.active):hover { border-color: #0D9488; color: #0D9488; }
+
+    .status-active { background: #DCFCE7; color: #166534; }
+    .status-consolidated { background: #DBEAFE; color: #1D4ED8; }
+    .status-superseded { background: #FEF2F2; color: #991B1B; }
+
+    .source-rbi { background: #EFF6FF; color: #1D4ED8; border: 1px solid #BFDBFE; }
+
+    .tag-pill { background: #F1F5F9; color: #475569; font-size: 0.7rem; border: 1px solid #E2E8F0; }
+
+    .view-section { animation: fadeIn 0.25s ease-out; }
+
+    .ai-explain-btn {
+      background: linear-gradient(135deg, #0D9488 0%, #0891b2 100%);
+      transition: all 0.2s ease;
+      box-shadow: 0 1px 4px rgba(13,148,136,0.3);
+    }
+    .ai-explain-btn:hover {
+      box-shadow: 0 4px 12px rgba(13,148,136,0.4);
+      transform: translateY(-1px);
+    }
+
+    .deadline-item { border-left: 2px solid transparent; transition: border-color 0.15s; }
+    .deadline-item:hover { border-left-color: #F59E0B; }
+
+    .source-health-dot { width: 8px; height: 8px; border-radius: 50%; }
+
+    .card-new-highlight { animation: highlightCard 2s ease-out forwards; }
+    @keyframes highlightCard {
+      0% { box-shadow: 0 0 0 2px #0D9488, 0 4px 20px rgba(13,148,136,0.3); }
+      100% { box-shadow: none; }
+    }
+
+    .search-input:focus { outline: none; box-shadow: 0 0 0 2px rgba(13,148,136,0.3); }
+
+    .drawer-section-title { font-family: 'Fraunces', serif; font-size: 0.85rem; font-weight: 600; color: #0F172A; letter-spacing: 0.01em; }
+
+    .nav-icon { width: 17px; height: 17px; flex-shrink: 0; }
+
+    .grid-main { display: grid; grid-template-columns: 220px 1fr 280px; height: 100vh; overflow: hidden; }
+
+    .settings-toggle { position: relative; width: 38px; height: 20px; background: #E2E8F0; border-radius: 99px; cursor: pointer; transition: background 0.2s; }
+    .settings-toggle.on { background: #0D9488; }
+    .settings-toggle::after { content: ''; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; background: white; border-radius: 50%; transition: transform 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+    .settings-toggle.on::after { transform: translateX(18px); }
+
+    .badge-new { animation: fadeIn 0.4s ease-out; }
+
+    .md-table-row { transition: background 0.15s; }
+    .md-table-row:hover { background: #F8FAFC; }
+  </style>
+</head>
+<body>
+
+<div class="grid-main">
+
+  <!-- SIDEBAR -->
+  <aside style="background:#0F172A;" class="flex flex-col h-screen relative z-20">
+    <div class="px-5 py-5 border-b" style="border-color: rgba(255,255,255,0.07);">
+      <div class="flex items-center gap-2.5">
+        <div class="w-8 h-8 rounded-lg flex items-center justify-center text-white font-bold text-sm" style="background: linear-gradient(135deg, #0D9488, #0891b2);">
+          <span style="font-family:'Fraunces',serif; font-size:0.95rem;">₹$</span>
+        </div>
+        <div>
+          <div style="font-family:'Fraunces',serif; color:white; font-size:1.05rem; font-weight:600; letter-spacing:-0.01em;">FEMAWatch</div>
+          <div style="color: rgba(255,255,255,0.35); font-size:0.6rem; font-family:'DM Mono',monospace; letter-spacing:0.08em;">REGULATORY INTELLIGENCE</div>
+        </div>
+      </div>
+    </div>
+
+    <nav class="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
+      <div class="px-2 pb-2 pt-1" style="color:rgba(255,255,255,0.25); font-size:0.6rem; font-family:'DM Mono',monospace; letter-spacing:0.12em;">NAVIGATION</div>
+
+      <button onclick="switchView('dashboard')" id="nav-dashboard" class="sidebar-nav-item active w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-left" style="border-left: 2px solid #0D9488;">
+        <svg class="nav-icon" style="color:#2DD4BF;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+        </svg>
+        <span class="nav-label text-sm font-medium" style="color:#2DD4BF;">Dashboard</span>
+      </button>
+
+      <button onclick="switchView('notifications')" id="nav-notifications" class="sidebar-nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-left">
+        <svg class="nav-icon" style="color:rgba(255,255,255,0.45);" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+        </svg>
+        <span class="nav-label text-sm font-medium" style="color:rgba(255,255,255,0.55);">Notifications Feed</span>
+        <span class="ml-auto text-xs px-1.5 py-0.5 rounded-full font-mono" style="background:rgba(13,148,136,0.25);color:#2DD4BF;">99</span>
+      </button>
+
+      <button onclick="switchView('master-directions')" id="nav-master-directions" class="sidebar-nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-left">
+        <svg class="nav-icon" style="color:rgba(255,255,255,0.45);" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+        </svg>
+        <span class="nav-label text-sm font-medium" style="color:rgba(255,255,255,0.55);">Master Directions</span>
+        <span class="ml-auto text-xs px-1.5 py-0.5 rounded-full font-mono" style="background:rgba(13,148,136,0.25);color:#2DD4BF;">20</span>
+      </button>
+
+      <button onclick="switchView('press-news')" id="nav-press-news" class="sidebar-nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-left">
+        <svg class="nav-icon" style="color:rgba(255,255,255,0.45);" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10l6 6v8a2 2 0 01-2 2zM9 12h6M9 16h4"/>
+        </svg>
+        <span class="nav-label text-sm font-medium" style="color:rgba(255,255,255,0.55);">Press Releases</span>
+        <span class="ml-auto text-xs font-mono px-1.5 py-0.5 rounded" style="background:rgba(245,158,11,0.2);color:#F59E0B;">33</span>
+      </button>
+      <button onclick="switchView('saved')" id="nav-saved" class="sidebar-nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-left">
+        <svg class="nav-icon" style="color:rgba(255,255,255,0.45);" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/>
+        </svg>
+        <span class="nav-label text-sm font-medium" style="color:rgba(255,255,255,0.55);">Saved Items</span>
+        <span id="saved-badge" class="ml-auto text-xs px-1.5 py-0.5 rounded-full font-mono hidden badge-new" style="background:rgba(245,158,11,0.25);color:#FBBF24;">0</span>
+      </button>
+
+      <div class="px-2 pb-2 pt-5" style="color:rgba(255,255,255,0.25); font-size:0.6rem; font-family:'DM Mono',monospace; letter-spacing:0.12em;">ACCOUNT</div>
+
+      <button onclick="switchView('settings')" id="nav-settings" class="sidebar-nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-left">
+        <svg class="nav-icon" style="color:rgba(255,255,255,0.45);" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+        </svg>
+        <span class="nav-label text-sm font-medium" style="color:rgba(255,255,255,0.55);">Settings</span>
+      </button>
+    </nav>
+
+    <div class="px-5 py-4 border-t" style="border-color:rgba(255,255,255,0.07);">
+      <div class="flex items-center gap-2.5">
+        <div class="relative w-2.5 h-2.5 pulse-dot">
+          <div class="w-2.5 h-2.5 rounded-full" style="background:#22c55e; position:relative; z-index:1;"></div>
+        </div>
+        <div>
+          <div class="text-xs font-medium" style="color:#4ade80;">Live Syncing</div>
+          <div class="text-xs" style="color:rgba(255,255,255,0.25); font-family:'DM Mono',monospace;">RBI · SEBI · MCA</div>
+        </div>
+        <div class="ml-auto text-xs" style="color:rgba(255,255,255,0.2); font-family:'DM Mono',monospace;" id="sync-time">00:00</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN PANEL -->
+  <main class="flex flex-col h-screen overflow-hidden" style="background:#F8FAFC;">
+
+    <div class="flex-shrink-0 px-6 py-4 border-b bg-white" style="border-color:#E2E8F0;">
+      <div class="flex items-center gap-4">
+        <div class="flex-1 relative">
+          <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style="color:#94A3B8;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+          </svg>
+          <input id="search-input" type="text" placeholder="Search regulations, Master Directions, circulars…" oninput="filterCards()" class="search-input w-full pl-9 pr-4 py-2 text-sm rounded-lg border bg-slate-50 transition-all" style="border-color:#E2E8F0; color:#0F172A; font-family:'IBM Plex Sans',sans-serif;" />
+        </div>
+        <div class="flex items-center gap-2 text-xs font-medium px-3 py-2 rounded-lg border cursor-pointer hover:border-teal-600 transition-all" style="border-color:#E2E8F0; color:#475569; background:white;">
+          <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+          2017–2026
+        </div>
+        <div class="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-semibold flex-shrink-0" style="background: linear-gradient(135deg,#0D9488,#0891b2);">AA</div>
+      </div>
+      <div class="flex items-center gap-2 mt-3 flex-wrap" id="filter-chips-row">
+        <span class="text-xs font-medium" style="color:#94A3B8;">Filter:</span>
+        <button class="filter-chip active text-xs px-3 py-1 rounded-full border font-medium transition-all" style="border-color:#0D9488; background:#0D9488; color:white;" data-filter="all" onclick="setFilter(this)">All</button>
+        <button class="filter-chip text-xs px-3 py-1 rounded-full border font-medium transition-all" style="border-color:#E2E8F0; color:#475569;" data-filter="FDI" onclick="setFilter(this)">FDI</button>
+        <button class="filter-chip text-xs px-3 py-1 rounded-full border font-medium transition-all" style="border-color:#E2E8F0; color:#475569;" data-filter="ECB" onclick="setFilter(this)">ECB</button>
+        <button class="filter-chip text-xs px-3 py-1 rounded-full border font-medium transition-all" style="border-color:#E2E8F0; color:#475569;" data-filter="LRS" onclick="setFilter(this)">LRS</button>
+        <button class="filter-chip text-xs px-3 py-1 rounded-full border font-medium transition-all" style="border-color:#E2E8F0; color:#475569;" data-filter="FPI" onclick="setFilter(this)">FPI</button>
+        <button class="filter-chip text-xs px-3 py-1 rounded-full border font-medium transition-all" style="border-color:#E2E8F0; color:#475569;" data-filter="Compounding" onclick="setFilter(this)">Compounding</button>
+        <button class="filter-chip text-xs px-3 py-1 rounded-full border font-medium transition-all" style="border-color:#E2E8F0; color:#475569;" data-filter="ODI" onclick="setFilter(this)">ODI</button>
+        <button class="filter-chip text-xs px-3 py-1 rounded-full border font-medium transition-all" style="border-color:#E2E8F0; color:#475569;" data-filter="Active" onclick="setFilter(this)">Active Only</button>
+        <button class="filter-chip text-xs px-3 py-1 rounded-full border font-medium transition-all" style="border-color:#E2E8F0; color:#475569;" data-filter="Superseded" onclick="setFilter(this)">Superseded</button>
+      </div>
+    </div>
+
+    <div id="alert-banner" class="hidden flex-shrink-0 px-6 py-2.5 flex items-center gap-3 text-sm font-medium" style="background:#FEF3C7; border-bottom:1px solid #FDE68A; color:#92400E;">
+      <div class="w-4 h-4 flex-shrink-0">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+      </div>
+      <span id="alert-text">New RBI circular detected — updating feed...</span>
+      <button onclick="dismissAlert()" class="ml-auto text-amber-600 hover:text-amber-800 transition-colors">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+    </div>
+
+    <!-- DASHBOARD VIEW -->
+    <div id="view-dashboard" class="view-section flex-1 overflow-y-auto px-6 py-5 space-y-3">
+      <div class="flex items-center justify-between mb-1">
+        <h2 class="text-sm font-semibold" style="color:#0F172A; font-family:'Fraunces',serif;">Regulatory Updates <span class="ml-1 text-xs font-normal" style="color:#94A3B8; font-family:'DM Mono',monospace;" id="card-count">Loading…</span></h2>
+        <div class="text-xs" style="color:#94A3B8; font-family:'DM Mono',monospace;">Sorted: Latest first</div>
+      </div>
+      <div id="cards-container" class="space-y-3"></div>
+      <div id="no-results" class="hidden py-16 text-center">
+        <div class="text-3xl mb-3">🔍</div>
+        <div class="text-sm font-medium" style="color:#64748B;">No results match your search or filter.</div>
+        <div class="text-xs mt-1" style="color:#94A3B8;">Try a different keyword or reset filters.</div>
+      </div>
+    </div>
+
+    <!-- NOTIFICATIONS VIEW -->
+    <div id="view-notifications" class="view-section hidden flex-1 overflow-y-auto px-6 py-5">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-sm font-semibold" style="color:#0F172A; font-family:'Fraunces',serif;">Notifications Feed <span class="ml-1 text-xs font-normal" style="color:#94A3B8; font-family:'DM Mono',monospace;">99 circulars · 2017–2025</span></h2>
+        <div class="flex gap-2">
+          <input id="notif-search" type="text" placeholder="Search…" oninput="renderNotifications()" class="search-input text-xs px-3 py-1.5 rounded-lg border bg-slate-50" style="border-color:#E2E8F0; width:160px;" />
+          <select id="notif-status-filter" onchange="renderNotifications()" class="text-xs px-2 py-1.5 rounded-lg border" style="border-color:#E2E8F0; color:#475569;">
+            <option value="all">All Status</option>
+            <option value="Active">Active</option>
+            <option value="Consolidated">Consolidated</option>
+            <option value="Superseded">Superseded</option>
+          </select>
+          <select id="notif-theme-filter" onchange="renderNotifications()" class="text-xs px-2 py-1.5 rounded-lg border" style="border-color:#E2E8F0; color:#475569;">
+            <option value="all">All Themes</option>
+            <option value="I. FDI">FDI</option>
+            <option value="II. FPI">FPI</option>
+            <option value="III. ECB">ECB</option>
+            <option value="IV. Remittances and Capital Flight">Remittances</option>
+            <option value="V. Derivatives and Market Infrastructure">Derivatives</option>
+            <option value="VI. Systemic Risk">Systemic Risk</option>
+          </select>
+        </div>
+      </div>
+      <div id="notifications-container" class="space-y-2"></div>
+      <div id="notif-load-more" class="pt-4 text-center hidden">
+        <button onclick="loadMoreNotifications()" class="text-xs font-medium px-4 py-2 rounded-lg border transition-all hover:border-teal-600 hover:text-teal-600" style="border-color:#E2E8F0; color:#475569;">Load more</button>
+      </div>
+    </div>
+
+    <!-- MASTER DIRECTIONS VIEW -->
+    <div id="view-master-directions" class="view-section hidden flex-1 overflow-y-auto px-6 py-5">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-sm font-semibold" style="color:#0F172A; font-family:'Fraunces',serif;">Master Directions Index <span class="ml-1 text-xs font-normal" style="color:#94A3B8; font-family:'DM Mono',monospace;">20 directions</span></h2>
+        <input id="md-search" type="text" placeholder="Search directions…" oninput="filterMasterDirections()" class="search-input text-xs px-3 py-1.5 rounded-lg border bg-slate-50" style="border-color:#E2E8F0; width:180px;" />
+      </div>
+      <div class="bg-white rounded-xl border overflow-hidden" style="border-color:#E2E8F0;">
+        <table class="w-full text-xs">
+          <thead style="background:#F8FAFC; border-bottom:1px solid #E2E8F0;">
+            <tr>
+              <th class="text-left px-4 py-3 font-semibold" style="color:#475569;">Direction Title</th>
+              <th class="text-left px-4 py-3 font-semibold" style="color:#475569; white-space:nowrap;">Published</th>
+              <th class="text-left px-4 py-3 font-semibold" style="color:#475569; white-space:nowrap;">Last Updated</th>
+              <th class="text-left px-4 py-3 font-semibold" style="color:#475569;">Addressee</th>
+              <th class="text-left px-4 py-3 font-semibold" style="color:#475569;">Coverage</th>
+            </tr>
+          </thead>
+          <tbody id="md-table-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- PRESS RELEASES & NEWS VIEW -->
+    <div id="view-press-news" class="view-section hidden flex-1 overflow-y-auto px-6 py-5">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-sm font-semibold" style="color:#0F172A; font-family:'Fraunces',serif;">Press Releases &amp; Regulatory News <span class="ml-1 text-xs font-normal" style="color:#94A3B8; font-family:'DM Mono',monospace;">33 items · 2025–2026 · reverse chronological</span></h2>
+        <div class="flex gap-2">
+          <input id="press-search" type="text" placeholder="Search…" oninput="renderPressItems()" class="search-input text-xs px-3 py-1.5 rounded-lg border bg-slate-50" style="border-color:#E2E8F0; width:160px;" />
+          <select id="press-source-filter" onchange="renderPressItems()" class="text-xs px-2 py-1.5 rounded-lg border" style="border-color:#E2E8F0; color:#475569;">
+            <option value="all">All Sources</option>
+            <option value="RBI">RBI</option>
+            <option value="SEBI">SEBI</option>
+          </select>
+          <select id="press-category-filter" onchange="renderPressItems()" class="text-xs px-2 py-1.5 rounded-lg border" style="border-color:#E2E8F0; color:#475569;">
+            <option value="all">All Categories</option>
+            <option value="Monetary Policy">Monetary Policy</option>
+            <option value="FPI Regulation">FPI Regulation</option>
+            <option value="ECB / Data">ECB / Data</option>
+            <option value="Forex Market">Forex Market</option>
+            <option value="Authorised Persons">Authorised Persons</option>
+            <option value="BoP / Data">BoP / Data</option>
+            <option value="AIF Regulation">AIF Regulation</option>
+            <option value="AML / FIU">AML / FIU</option>
+            <option value="Guarantees">Guarantees</option>
+            <option value="Trade Relief">Trade Relief</option>
+            <option value="Survey / Data">Survey / Data</option>
+          </select>
+        </div>
+      </div>
+      <div id="press-container" class="space-y-2"></div>
+      <div id="press-no-results" class="hidden py-16 text-center">
+        <div class="text-3xl mb-3">🔍</div>
+        <div class="text-sm font-medium" style="color:#64748B;">No press releases match your filter.</div>
+      </div>
+    </div>
+
+    <!-- SAVED ITEMS VIEW -->
+    <div id="view-saved" class="view-section hidden flex-1 overflow-y-auto px-6 py-5">
+      <h2 class="text-sm font-semibold mb-4" style="color:#0F172A; font-family:'Fraunces',serif;">Saved Items</h2>
+      <div id="saved-cards-container" class="space-y-3"></div>
+      <div id="saved-empty" class="hidden py-20 text-center">
+        <div class="text-4xl mb-3">🔖</div>
+        <div class="text-sm font-medium" style="color:#64748B;">No saved items yet.</div>
+        <div class="text-xs mt-1" style="color:#94A3B8;">Click the bookmark icon on any card to save it here.</div>
+      </div>
+    </div>
+
+    <!-- SETTINGS VIEW -->
+    <div id="view-settings" class="view-section hidden flex-1 overflow-y-auto px-6 py-5">
+      <h2 class="text-sm font-semibold mb-5" style="color:#0F172A; font-family:'Fraunces',serif;">Settings</h2>
+      <div class="max-w-lg space-y-4">
+        <div class="bg-white rounded-xl p-5 border" style="border-color:#E2E8F0;">
+          <div class="text-xs font-semibold uppercase tracking-widest mb-3" style="color:#94A3B8; font-family:'DM Mono',monospace;">Profile</div>
+          <div class="flex items-center gap-4">
+            <div class="w-12 h-12 rounded-full flex items-center justify-center text-white font-semibold" style="background:linear-gradient(135deg,#0D9488,#0891b2);">AA</div>
+            <div>
+              <div class="text-sm font-semibold" style="color:#0F172A;">Regulatory Advisor</div>
+              <div class="text-xs" style="color:#64748B; font-family:'DM Mono',monospace;">aa@femalegalcounsel.in</div>
+            </div>
+            <button class="ml-auto text-xs px-3 py-1.5 rounded-lg border font-medium hover:border-teal-600 transition-all" style="border-color:#E2E8F0; color:#475569;">Edit</button>
+          </div>
+        </div>
+        <div class="bg-white rounded-xl p-5 border" style="border-color:#E2E8F0;">
+          <div class="text-xs font-semibold uppercase tracking-widest mb-4" style="color:#94A3B8; font-family:'DM Mono',monospace;">Notifications</div>
+          <div class="space-y-4">
+            <div class="flex items-center justify-between">
+              <div><div class="text-xs font-medium" style="color:#0F172A;">New RBI Master Directions</div><div class="text-xs" style="color:#94A3B8;">Alert when a new Master Direction is published</div></div>
+              <div class="settings-toggle on" onclick="this.classList.toggle('on')"></div>
+            </div>
+            <div class="flex items-center justify-between">
+              <div><div class="text-xs font-medium" style="color:#0F172A;">FEMA Compounding Orders</div><div class="text-xs" style="color:#94A3B8;">Notify on published compounding orders</div></div>
+              <div class="settings-toggle on" onclick="this.classList.toggle('on')"></div>
+            </div>
+            <div class="flex items-center justify-between">
+              <div><div class="text-xs font-medium" style="color:#0F172A;">LRS Reporting Reminders</div><div class="text-xs" style="color:#94A3B8;">Deadline reminders 7 days in advance</div></div>
+              <div class="settings-toggle" onclick="this.classList.toggle('on')"></div>
+            </div>
+            <div class="flex items-center justify-between">
+              <div><div class="text-xs font-medium" style="color:#0F172A;">FPI / FAR Instrument Changes</div><div class="text-xs" style="color:#94A3B8;">Eligibility or category updates via RBI</div></div>
+              <div class="settings-toggle on" style="color:#94A3B8;" onclick="this.classList.toggle('on')"></div>
+            </div>
+          </div>
+        </div>
+        <div class="bg-white rounded-xl p-5 border" style="border-color:#E2E8F0;">
+          <div class="text-xs font-semibold uppercase tracking-widest mb-4" style="color:#94A3B8; font-family:'DM Mono',monospace;">Source Tracking</div>
+          <div class="space-y-2.5">
+            <label class="flex items-center gap-3 cursor-pointer"><input type="checkbox" checked class="accent-teal-600 w-3.5 h-3.5" /><span class="text-xs" style="color:#0F172A;">RBI — rbi.org.in</span></label>
+            <label class="flex items-center gap-3 cursor-pointer"><input type="checkbox" checked class="accent-teal-600 w-3.5 h-3.5" /><span class="text-xs" style="color:#0F172A;">SEBI — sebi.gov.in</span></label>
+            <label class="flex items-center gap-3 cursor-pointer"><input type="checkbox" class="accent-teal-600 w-3.5 h-3.5" /><span class="text-xs" style="color:#0F172A;">MCA — mca.gov.in</span></label>
+            <label class="flex items-center gap-3 cursor-pointer"><input type="checkbox" class="accent-teal-600 w-3.5 h-3.5" /><span class="text-xs" style="color:#0F172A;">IFSCA — ifsca.gov.in</span></label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- RIGHT PANEL -->
+  <aside class="flex flex-col h-screen overflow-y-auto border-l bg-white" style="border-color:#E2E8F0;">
+    <div class="px-5 py-4 border-b flex-shrink-0" style="border-color:#E2E8F0;">
+      <div class="text-xs font-semibold uppercase tracking-widest" style="color:#94A3B8; font-family:'DM Mono',monospace;">Quick Insights</div>
+    </div>
+
+    <div class="flex-1 overflow-y-auto px-5 py-4 space-y-5">
+
+      <!-- Database Stats -->
+      <div>
+        <div class="text-xs font-semibold uppercase tracking-widest mb-3" style="color:#94A3B8; font-family:'DM Mono',monospace;">Database Stats</div>
+        <div class="grid grid-cols-2 gap-2">
+          <div class="rounded-lg p-3 border" style="border-color:#E2E8F0; background:#F8FAFC;">
+            <div class="text-lg font-semibold" style="color:#0F172A; font-family:'Fraunces',serif;">99</div>
+            <div class="text-xs" style="color:#64748B;">Notifications</div>
+          </div>
+          <div class="rounded-lg p-3 border" style="border-color:#E2E8F0; background:#F8FAFC;">
+            <div class="text-lg font-semibold" style="color:#0F172A; font-family:'Fraunces',serif;">20</div>
+            <div class="text-xs" style="color:#64748B;">Master Directions</div>
+          </div>
+          <div class="rounded-lg p-3 border" style="border-color:#E2E8F0; background:#F8FAFC;">
+            <div class="text-lg font-semibold" style="color:#1D4ED8; font-family:'Fraunces',serif;">33</div>
+            <div class="text-xs" style="color:#64748B;">Press Releases</div>
+          </div>
+          <div class="rounded-lg p-3 border" style="border-color:#E2E8F0; background:#F8FAFC;">
+            <div class="text-lg font-semibold" style="color:#166534; font-family:'Fraunces',serif;">34</div>
+            <div class="text-xs" style="color:#64748B;">Active Notifs</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Upcoming Deadlines -->
+      <div>
+        <div class="text-xs font-semibold uppercase tracking-widest mb-3" style="color:#94A3B8; font-family:'DM Mono',monospace;">Upcoming Deadlines</div>
+        <div class="space-y-1">
+          <div class="deadline-item pl-3 py-2.5 rounded-r-lg transition-all cursor-default" style="border-left:2px solid #F59E0B;">
+            <div class="text-xs font-semibold" style="color:#0F172A;">LRS Daily Return — CIMS</div>
+            <div class="flex items-center justify-between mt-0.5">
+              <div class="text-xs" style="color:#64748B;">AD Cat-I, Cat-II &amp; FFMCs</div>
+              <span class="text-xs font-mono px-1.5 py-0.5 rounded" style="background:#FEF3C7; color:#92400E;">Jun 30</span>
+            </div>
+          </div>
+          <div class="deadline-item pl-3 py-2.5 rounded-r-lg transition-all cursor-default" style="border-left:2px solid #E2E8F0;">
+            <div class="text-xs font-semibold" style="color:#0F172A;">FLA Return — RBI</div>
+            <div class="flex items-center justify-between mt-0.5">
+              <div class="text-xs" style="color:#64748B;">Entities with inward/outward FDI</div>
+              <span class="text-xs font-mono px-1.5 py-0.5 rounded" style="background:#F1F5F9; color:#475569;">Jul 15</span>
+            </div>
+          </div>
+          <div class="deadline-item pl-3 py-2.5 rounded-r-lg transition-all cursor-default" style="border-left:2px solid #E2E8F0;">
+            <div class="text-xs font-semibold" style="color:#0F172A;">APR Filing — ODI</div>
+            <div class="flex items-center justify-between mt-0.5">
+              <div class="text-xs" style="color:#64748B;">Indian entities with overseas subsidiaries</div>
+              <span class="text-xs font-mono px-1.5 py-0.5 rounded" style="background:#F1F5F9; color:#475569;">Dec 31</span>
+            </div>
+          </div>
+          <div class="deadline-item pl-3 py-2.5 rounded-r-lg transition-all cursor-default" style="border-left:2px solid #E2E8F0;">
+            <div class="text-xs font-semibold" style="color:#0F172A;">FCGPR — Post-Allotment</div>
+            <div class="flex items-center justify-between mt-0.5">
+              <div class="text-xs" style="color:#64748B;">Within 30 days of allotment</div>
+              <span class="text-xs font-mono px-1.5 py-0.5 rounded" style="background:#F1F5F9; color:#475569;">Rolling</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Source Health -->
+      <div>
+        <div class="text-xs font-semibold uppercase tracking-widest mb-3" style="color:#94A3B8; font-family:'DM Mono',monospace;">Source Health</div>
+        <div class="rounded-xl border overflow-hidden" style="border-color:#E2E8F0;">
+          <div class="flex items-center justify-between px-4 py-2.5 border-b" style="border-color:#F1F5F9;">
+            <div class="flex items-center gap-2.5"><div class="source-health-dot" style="background:#22c55e;"></div><span class="text-xs font-medium" style="color:#0F172A;">RBI — rbi.org.in</span></div>
+            <span class="text-xs font-mono" style="color:#22c55e;">Online</span>
+          </div>
+          <div class="flex items-center justify-between px-4 py-2.5 border-b" style="border-color:#F1F5F9;">
+            <div class="flex items-center gap-2.5"><div class="source-health-dot" style="background:#22c55e;"></div><span class="text-xs font-medium" style="color:#0F172A;">SEBI — sebi.gov.in</span></div>
+            <span class="text-xs font-mono" style="color:#22c55e;">Online</span>
+          </div>
+          <div class="flex items-center justify-between px-4 py-2.5 border-b" style="border-color:#F1F5F9;">
+            <div class="flex items-center gap-2.5"><div class="source-health-dot" style="background:#F59E0B;"></div><span class="text-xs font-medium" style="color:#0F172A;">MCA — mca.gov.in</span></div>
+            <span class="text-xs font-mono" style="color:#F59E0B;">Slow</span>
+          </div>
+          <div class="flex items-center justify-between px-4 py-2.5">
+            <div class="flex items-center gap-2.5"><div class="source-health-dot" style="background:#22c55e;"></div><span class="text-xs font-medium" style="color:#0F172A;">IFSCA — ifsca.gov.in</span></div>
+            <span class="text-xs font-mono" style="color:#22c55e;">Online</span>
+          </div>
+        </div>
+        <div class="mt-2 text-xs text-right" style="color:#94A3B8; font-family:'DM Mono',monospace;">Last checked: 09:14 IST</div>
+      </div>
+
+    </div>
+  </aside>
+
+</div>
+
+<script>
+// DATA — Notifications (99 records)
+
+const NOTIFICATIONS = [
+  { id: 'n001', date: 'Dec 08, 2025', title: 'Foreign Exchange Management (Export and Import of Currency) (Amendment) Regulations, 2025', status: 'Consolidated', theme: 'IV. Remittances and Capital Flight', subTheme: 'Repatriation Norms', url: '' },
+  { id: 'n002', date: 'Dec 03, 2025', title: 'Liberalised Remittance Scheme (LRS) — Submission of LRS Daily Return by Authorised Dealers-Category II banks/entities and Full-Fledged Money Changers', status: 'Active', theme: 'IV. Remittances and Capital Flight', subTheme: 'Individual Remittance Limits', url: '' },
+  { id: 'n003', date: 'Nov 24, 2025', title: 'Amendments to Directions — Compounding of Contraventions under FEMA, 1999', status: 'Active', theme: 'VI. Systemic Risk', subTheme: 'Crisis Management & Resolution', url: '' },
+  { id: 'n004', date: 'Nov 20, 2025', title: 'Foreign Exchange Management (Export of Goods and Services) (Second Amendment) Regulations, 2025', status: 'Superseded', theme: 'IV. Remittances and Capital Flight', subTheme: 'Repatriation Norms', url: '' },
+  { id: 'n005', date: 'Oct 13, 2025', title: 'Foreign Exchange Management (Foreign Currency Accounts by a person resident in India) (Seventh Amendment) Regulations, 2025', status: 'Active', theme: 'IV. Remittances and Capital Flight', subTheme: 'NRI/PIO Investment Framework', url: '' },
+  { id: 'n006', date: 'Oct 13, 2025', title: 'Foreign Exchange Management (Borrowing and Lending) (Amendment) Regulations, 2025', status: 'Active', theme: 'III. ECB', subTheme: 'Borrowing Limits & Maturity', url: '' },
+  { id: 'n007', date: 'Sep 29, 2025', title: 'Foreign Exchange Management (Debt Instruments) (Fourth Amendment) Regulations, 2025', status: 'Active', theme: 'II. FPI', subTheme: 'Investment Limits & Monitoring', url: '' },
+  { id: 'n008', date: 'Jul 04, 2025', title: 'Foreign Exchange Management (Export of Goods & Services) (Amendment) Regulations, 2025', status: 'Superseded', theme: 'I. FDI', subTheme: 'Procedural Simplification', url: '' },
+  { id: 'n009', date: 'Jun 06, 2025', title: 'Foreign Exchange Management (Foreign Currency Accounts by a Person Resident in India) (Sixth Amendment) Regulations, 2025', status: 'Active', theme: 'IV. Remittances and Capital Flight', subTheme: 'NRI/PIO Investment Framework', url: '' },
+  { id: 'n010', date: 'Apr 24, 2025', title: 'Amendments to Directions — Compounding of Contraventions under FEMA, 1999', status: 'Active', theme: 'VI. Systemic Risk', subTheme: 'Crisis Management & Resolution', url: '' },
+  { id: 'n011', date: 'Apr 22, 2025', title: 'Master Directions — Compounding of Contraventions under FEMA, 1999, dated April 22, 2025 (Updated as on April 24, 2025)', status: 'Active', theme: 'VI. Systemic Risk', subTheme: 'Crisis Management & Resolution', url: '' },
+  { id: 'n012', date: 'Apr 22, 2025', title: 'Amendments to Directions — Compounding of Contraventions under FEMA, 1999', status: 'Active', theme: 'VI. Systemic Risk', subTheme: 'Crisis Management & Resolution', url: '' },
+  { id: 'n013', date: 'Feb 12, 2025', title: 'Foreign Exchange Management (Manner of Receipt and Payment) (Amendment) Regulations, 2025', status: 'Active', theme: 'IV. Remittances and Capital Flight', subTheme: 'Repatriation Norms', url: '' },
+  { id: 'n014', date: 'Jan 16, 2025', title: 'Foreign Exchange Management (Mode of Payment and Reporting of Non-Debt Instruments) (Third Amendment) Regulations, 2025', status: 'Active', theme: 'I. FDI', subTheme: 'Procedural Simplification', url: '' },
+  { id: 'n015', date: 'Jan 16, 2025', title: 'Foreign Exchange Management (Foreign Currency Accounts by a person resident in India) (Fifth Amendment) Regulations, 2025', status: 'Active', theme: 'IV. Remittances and Capital Flight', subTheme: 'NRI/PIO Investment Framework', url: '' },
+  { id: 'n016', date: 'Jan 16, 2025', title: 'Foreign Exchange Management (Deposit) (Fifth Amendment) Regulations, 2025', status: 'Active', theme: 'IV. Remittances and Capital Flight', subTheme: 'NRI/PIO Investment Framework', url: '' },
+  { id: 'n017', date: 'Nov 19, 2024', title: 'Foreign Exchange Management (Foreign Currency Accounts by a Person Resident in India) (Fourth Amendment) Regulations, 2024', status: 'Active', theme: 'IV. Remittances and Capital Flight', subTheme: 'NRI/PIO Investment Framework', url: '' },
+  { id: 'n018', date: 'Oct 01, 2024', title: 'Directions — Compounding of Contraventions under FEMA, 1999', status: 'Active', theme: 'VI. Systemic Risk', subTheme: 'Crisis Management & Resolution', url: '' },
+  { id: 'n019', date: 'Sep 06, 2024', title: 'Liberalised Remittance Scheme (LRS) for Resident Individuals — Discontinuation of Reporting of monthly return', status: 'Active', theme: 'IV. Remittances and Capital Flight', subTheme: 'Individual Remittance Limits', url: '' },
+  { id: 'n020', date: 'Aug 02, 2024', title: 'Foreign Exchange Management (Debt Instruments) (Third Amendment) Regulations, 2024', status: 'Consolidated', theme: 'II. FPI', subTheme: 'Investment Limits & Monitoring', url: '' },
+  { id: 'n021', date: 'Jul 24, 2024', title: 'Master Direction — Overseas Investment (Updated as on April 01, 2026)', status: 'Active', theme: 'I. FDI', subTheme: 'Entry Routes & Sectoral Caps', url: '' },
+  { id: 'n022', date: 'Jul 10, 2024', title: 'Remittances to International Financial Services Centres (IFSCs) under the Liberalised Remittance Scheme (LRS)', status: 'Active', theme: 'IV. Remittances and Capital Flight', subTheme: 'Individual Remittance Limits', url: '' },
+  { id: 'n023', date: 'Jun 07, 2024', title: 'Foreign Exchange Management (Overseas Investment) Directions, 2022 — Investments in Overseas Funds', status: 'Consolidated', theme: 'I. FDI', subTheme: 'Entry Routes & Sectoral Caps', url: '' },
+  { id: 'n024', date: 'May 21, 2024', title: 'Issuance of partly paid units to persons resident outside India by investment vehicles under FEM (Non-debt Instruments) Rules, 2019', status: 'Active', theme: 'I. FDI', subTheme: 'Pricing & Valuation Norms', url: '' },
+  { id: 'n025', date: 'May 10, 2024', title: 'Foreign Exchange Management (Deposit) (Fourth Amendment) Regulations, 2024', status: 'Consolidated', theme: 'IV. Remittances and Capital Flight', subTheme: 'NRI/PIO Investment Framework', url: '' },
+  { id: 'n026', date: 'Apr 25, 2024', title: 'Foreign Exchange Management (Foreign Currency Accounts by a person resident in India) (Amendment) Regulations, 2024', status: 'Consolidated', theme: 'IV. Remittances and Capital Flight', subTheme: 'NRI/PIO Investment Framework', url: '' },
+  { id: 'n027', date: 'Apr 25, 2024', title: 'Foreign Exchange Management (Mode of Payment and Reporting of Non-Debt Instruments) (Amendment) Regulations, 2024', status: 'Active', theme: 'I. FDI', subTheme: 'Procedural Simplification', url: '' },
+  { id: 'n028', date: 'Dec 22, 2023', title: 'Foreign Exchange Management (Manner of Receipt and Payment) Regulations, 2023 (Amended up to February 12, 2025)', status: 'Active', theme: 'IV. Remittances and Capital Flight', subTheme: 'Repatriation Norms', url: '' },
+  { id: 'n029', date: 'Dec 22, 2023', title: 'Liberalised Remittance Scheme (LRS) for Resident Individuals — Reporting of monthly return and daily transactions', status: 'Consolidated', theme: 'IV. Remittances and Capital Flight', subTheme: 'Individual Remittance Limits', url: '' },
+  { id: 'n030', date: 'Oct 16, 2023', title: 'Foreign Exchange Management (Debt Instruments) (Second Amendment) Regulations, 2023', status: 'Consolidated', theme: 'II. FPI', subTheme: 'Investment Limits & Monitoring', url: '' },
+  { id: 'n031', date: 'Jun 22, 2023', title: 'Remittances to International Financial Services Centres (IFSCs) under the Liberalised Remittance Scheme (LRS)', status: 'Active', theme: 'IV. Remittances and Capital Flight', subTheme: 'Individual Remittance Limits', url: '' },
+  { id: 'n032', date: 'Apr 26, 2023', title: 'Remittances to International Financial Services Centres (IFSCs) under the Liberalised Remittance Scheme (LRS)', status: 'Active', theme: 'IV. Remittances and Capital Flight', subTheme: 'Individual Remittance Limits', url: '' },
+  { id: 'n033', date: 'Dec 12, 2022', title: 'Master Direction – Foreign Exchange Management (Hedging of Commodity Price Risk and Freight Risk in Overseas Markets) Directions, 2022 (Updated as on April 15, 2024)', status: 'Active', theme: 'III. ECB', subTheme: 'Currency Risk & Hedging', url: '' },
+  { id: 'n034', date: 'Sep 30, 2022', title: 'Late Submission Fee for reporting delays under Foreign Exchange Management Act, 1999 (FEMA)', status: 'Active', theme: 'VI. Systemic Risk', subTheme: 'Crisis Management & Resolution', url: '' },
+  { id: 'n035', date: 'Aug 22, 2022', title: 'Foreign Exchange Management (Overseas Investment) Directions, 2022 — Supersedes Master Direction – Direct Investment by Residents in JV/WOS Abroad', status: 'Consolidated', theme: 'I. FDI', subTheme: 'Entry Routes & Sectoral Caps', url: '' },
+  { id: 'n036', date: 'Aug 22, 2022', title: 'Foreign Exchange Management (Overseas Investment) Regulations, 2022', status: 'Active', theme: 'I. FDI', subTheme: 'Entry Routes & Sectoral Caps', url: '' },
+  { id: 'n037', date: 'Aug 01, 2022', title: 'External Commercial Borrowings (ECB) Policy — Liberalisation Measures', status: 'Consolidated', theme: 'III. ECB', subTheme: 'Borrowing Limits & Maturity', url: '' },
+  { id: 'n038', date: 'Jul 28, 2022', title: 'Foreign Exchange Management (Borrowing and Lending) (Amendment) Regulations, 2022', status: 'Consolidated', theme: 'III. ECB', subTheme: 'Borrowing Limits & Maturity', url: '' },
+  { id: 'n039', date: 'Jun 09, 2022', title: 'Discontinuation of Return under Foreign Exchange Management Act, 1999', status: 'Active', theme: 'I. FDI', subTheme: 'Procedural Simplification', url: '' },
+  { id: 'n040', date: 'Dec 08, 2021', title: 'External Commercial Borrowings (ECB) and Trade Credits (TC) Policy — Changes due to LIBOR transition', status: 'Consolidated', theme: 'III. ECB', subTheme: 'Borrowing Limits & Maturity', url: '' },
+  { id: 'n041', date: 'Oct 13, 2021', title: 'Foreign Exchange Management (Debt Instruments) (First Amendment) Regulations, 2021', status: 'Consolidated', theme: 'II. FPI', subTheme: 'Investment Limits & Monitoring', url: '' },
+  { id: 'n042', date: 'Sep 08, 2021', title: 'Foreign Exchange Management (Export of Goods and Services) (Amendment) Regulations, 2021', status: 'Superseded', theme: 'IV. Remittances and Capital Flight', subTheme: 'Repatriation Norms', url: '' },
+  { id: 'n043', date: 'Jun 17, 2021', title: 'Liberalised Remittance Scheme for Resident Individuals — Reporting', status: 'Consolidated', theme: 'IV. Remittances and Capital Flight', subTheme: 'Individual Remittance Limits', url: '' },
+  { id: 'n044', date: 'Apr 07, 2021', title: 'External Commercial Borrowings (ECB) Policy — Relaxation in the period of parking of unutilised ECB proceeds in term deposits', status: 'Consolidated', theme: 'III. ECB', subTheme: 'Borrowing Limits & Maturity', url: '' },
+  { id: 'n045', date: 'Feb 16, 2021', title: 'Remittances to International Financial Services Centres (IFSCs) in India under the Liberalised Remittance Scheme (LRS)', status: 'Consolidated', theme: 'IV. Remittances and Capital Flight', subTheme: 'Individual Remittance Limits', url: '' },
+  { id: 'n046', date: 'Jan 08, 2021', title: 'Foreign Exchange Management (Export of Goods and Services) (Amendment) Regulations, 2021', status: 'Superseded', theme: 'IV. Remittances and Capital Flight', subTheme: 'Repatriation Norms', url: '' },
+  { id: 'n047', date: 'Dec 04, 2020', title: 'Foreign Exchange Management (Export and Import of Currency) (Second Amendment) Regulations, 2020', status: 'Consolidated', theme: 'IV. Remittances and Capital Flight', subTheme: 'Repatriation Norms', url: '' },
+  { id: 'n048', date: 'Nov 17, 2020', title: 'Foreign Exchange Management Act, 1999 (FEMA) — Compounding of Contraventions under FEMA, 1999', status: 'Superseded', theme: 'VI. Systemic Risk', subTheme: 'Crisis Management & Resolution', url: '' },
+  { id: 'n049', date: 'Nov 13, 2020', title: 'Discontinuation of Returns/Reports under Foreign Exchange Management Act, 1999', status: 'Active', theme: 'I. FDI', subTheme: 'Procedural Simplification', url: '' },
+  { id: 'n050', date: 'Oct 23, 2020', title: 'Foreign Exchange Management (Margin for Derivative Contracts) Regulations, 2020', status: 'Consolidated', theme: 'V. Derivatives and Market Infrastructure', subTheme: 'OTC Markets & P-Notes', url: '' },
+  { id: 'n051', date: 'Aug 11, 2020', title: 'Foreign Exchange Management (Export and Import of Currency) (Amendment) Regulations, 2020', status: 'Consolidated', theme: 'IV. Remittances and Capital Flight', subTheme: 'Repatriation Norms', url: '' },
+  { id: 'n052', date: 'Jun 15, 2020', title: 'Foreign Exchange Management (Mode of Payment and Reporting of Non-Debt Instruments) (Amendment) Regulations, 2020', status: 'Consolidated', theme: 'I. FDI', subTheme: 'Procedural Simplification', url: '' },
+  { id: 'n053', date: 'Mar 31, 2020', title: 'Foreign Exchange Management (Export of Goods and Services) (Amendment) Regulations, 2020', status: 'Superseded', theme: 'IV. Remittances and Capital Flight', subTheme: 'Repatriation Norms', url: '' },
+  { id: 'n054', date: 'Mar 04, 2020', title: 'Foreign Exchange Management (Manner of Receipt and Payment) (Second Amendment) Regulations, 2020', status: 'Consolidated', theme: 'IV. Remittances and Capital Flight', subTheme: 'Repatriation Norms', url: '' },
+  { id: 'n055', date: 'Jan 07, 2020', title: 'Foreign Exchange Management (International Financial Services Centre) Regulations, 2015', status: 'Consolidated', theme: 'V. Derivatives and Market Infrastructure', subTheme: 'Settlement & Clearing Systems', url: '' },
+  { id: 'n056', date: 'Dec 09, 2019', title: 'Foreign Exchange Management (Export of Goods and Services) (Amendment) Regulations, 2019', status: 'Superseded', theme: 'IV. Remittances and Capital Flight', subTheme: 'Repatriation Norms', url: '' },
+  { id: 'n057', date: 'Nov 13, 2019', title: 'Foreign Exchange Management (Manner of Receipt and Payment) (Amendment) Regulations, 2019', status: 'Consolidated', theme: 'IV. Remittances and Capital Flight', subTheme: 'Repatriation Norms', url: '' },
+  { id: 'n058', date: 'Nov 13, 2019', title: 'Foreign Exchange Management (Deposit) (Third Amendment) Regulations, 2019', status: 'Consolidated', theme: 'IV. Remittances and Capital Flight', subTheme: 'NRI/PIO Investment Framework', url: '' },
+  { id: 'n059', date: 'Oct 17, 2019', title: 'Foreign Exchange Management (Debt Instruments) Regulations, 2019 (Amended up to October 01, 2025)', status: 'Active', theme: 'II. FPI', subTheme: 'Investment Limits & Monitoring', url: '' },
+  { id: 'n060', date: 'Oct 17, 2019', title: 'Foreign Exchange Management (Mode of Payment and Reporting of Non-Debt Instruments) Regulations, 2019 (Amended upto January 15, 2025)', status: 'Active', theme: 'I. FDI', subTheme: 'Procedural Simplification', url: '' },
+  { id: 'n061', date: 'Aug 16, 2019', title: 'Foreign Exchange Management (Deposit) (Amendment) Regulations, 2019 — Acceptance of Deposits by issue of Commercial Papers', status: 'Consolidated', theme: 'IV. Remittances and Capital Flight', subTheme: 'NRI/PIO Investment Framework', url: '' },
+  { id: 'n062', date: 'Jul 30, 2019', title: 'External Commercial Borrowings (ECB) Policy — Rationalisation of End-use Provisions', status: 'Consolidated', theme: 'III. ECB', subTheme: 'Borrowing Limits & Maturity', url: '' },
+  { id: 'n063', date: 'Jul 16, 2019', title: 'Foreign Exchange Management (Deposit)(Amendment) Regulations, 2019', status: 'Consolidated', theme: 'IV. Remittances and Capital Flight', subTheme: 'NRI/PIO Investment Framework', url: '' },
+  { id: 'n064', date: 'Apr 11, 2019', title: 'Foreign Exchange Management (Foreign Currency Accounts by a person resident in India) Regulations, 2015 — Opening of Foreign Currency Accounts by Re-insurance and Composite Insurance brokers', status: 'Active', theme: 'IV. Remittances and Capital Flight', subTheme: 'NRI/PIO Investment Framework', url: '' },
+  { id: 'n065', date: 'Mar 28, 2019', title: 'Foreign Exchange Management (Deposit) Regulations, 2016 — Opening of NRO Accounts by Long Term Visa (LTV) holders; SNRR Account and Escrow Account changes', status: 'Consolidated', theme: 'IV. Remittances and Capital Flight', subTheme: 'NRI/PIO Investment Framework', url: '' },
+  { id: 'n066', date: 'Mar 26, 2019', title: 'Master Direction — External Commercial Borrowings, Trade Credits and Structured Obligations (Updated as on February 16, 2026)', status: 'Active', theme: 'III. ECB', subTheme: 'Borrowing Limits & Maturity', url: '' },
+  { id: 'n067', date: 'Feb 27, 2019', title: 'Foreign Exchange Management (Foreign Currency Accounts by a person resident in India) (Amendment) Regulations, 2019', status: 'Consolidated', theme: 'IV. Remittances and Capital Flight', subTheme: 'NRI/PIO Investment Framework', url: '' },
+  { id: 'n068', date: 'Feb 26, 2019', title: 'Foreign Exchange Management (Export and import of Currency) (Amendment) Regulations, 2019', status: 'Consolidated', theme: 'IV. Remittances and Capital Flight', subTheme: 'Repatriation Norms', url: '' },
+  { id: 'n069', date: 'Feb 07, 2019', title: 'External Commercial Borrowings (ECB) Policy — ECB facility for Resolution Applicants under Corporate Insolvency Resolution Process', status: 'Consolidated', theme: 'III. ECB', subTheme: 'End-Use Restrictions', url: '' },
+  { id: 'n070', date: 'Jan 31, 2019', title: 'Foreign Exchange Management (Transfer or Issue of Security by a Person Resident outside India) (Amendment) Regulations, 2019', status: 'Consolidated', theme: 'I. FDI', subTheme: 'Entry Routes & Sectoral Caps', url: '' },
+  { id: 'n071', date: 'Jan 21, 2019', title: 'Foreign Exchange Management (Establishment in India of a Branch Office / Liaison Office / Project Office) (Amendment) Regulations, 2019', status: 'Consolidated', theme: 'I. FDI', subTheme: 'Procedural Simplification', url: '' },
+  { id: 'n072', date: 'Jan 16, 2019', title: 'External Commercial Borrowings (ECB) Policy — New ECB Framework', status: 'Consolidated', theme: 'III. ECB', subTheme: 'Borrowing Limits & Maturity', url: '' },
+  { id: 'n073', date: 'Dec 17, 2018', title: 'Foreign Exchange Management (Borrowing and Lending) Regulations, 2018 (Amended up to February 16, 2026)', status: 'Active', theme: 'III. ECB', subTheme: 'Borrowing Limits & Maturity', url: '' },
+  { id: 'n074', date: 'Nov 26, 2018', title: 'External Commercial Borrowings (ECB) Policy — Review of Hedging Provision', status: 'Consolidated', theme: 'III. ECB', subTheme: 'Borrowing Limits & Maturity', url: '' },
+  { id: 'n075', date: 'Nov 09, 2018', title: 'Foreign Exchange Management (Deposit) (Amendment) Regulations, 2018', status: 'Consolidated', theme: 'IV. Remittances and Capital Flight', subTheme: 'NRI/PIO Investment Framework', url: '' },
+  { id: 'n076', date: 'Nov 06, 2018', title: 'External Commercial Borrowings (ECB) Policy — Review of Minimum Average Maturity and Hedging Provisions', status: 'Consolidated', theme: 'III. ECB', subTheme: 'Currency Risk & Hedging', url: '' },
+  { id: 'n077', date: 'Oct 03, 2018', title: 'External Commercial Borrowings (ECB) Policy — Liberalisation', status: 'Consolidated', theme: 'III. ECB', subTheme: 'Borrowing Limits & Maturity', url: '' },
+  { id: 'n078', date: 'Sep 19, 2018', title: 'External Commercial Borrowings (ECB) Policy — Liberalisation', status: 'Consolidated', theme: 'III. ECB', subTheme: 'Borrowing Limits & Maturity', url: '' },
+  { id: 'n079', date: 'Aug 31, 2018', title: 'Foreign Exchange Management (Establishment in India of a Branch Office / Liaison Office / Project Office) (Amendment) Regulations, 2018', status: 'Consolidated', theme: 'I. FDI', subTheme: 'Procedural Simplification', url: '' },
+  { id: 'n080', date: 'Aug 30, 2018', title: 'Foreign Exchange Management (Transfer or Issue of Security by a Person Resident outside India) (Second Amendment) Regulations, 2018', status: 'Consolidated', theme: 'I. FDI', subTheme: 'Entry Routes & Sectoral Caps', url: '' },
+  { id: 'n081', date: 'Jun 19, 2018', title: 'Liberalised Remittance Scheme — Harmonisation of Data and Definitions', status: 'Consolidated', theme: 'IV. Remittances and Capital Flight', subTheme: 'Individual Remittance Limits', url: '' },
+  { id: 'n082', date: 'Jun 07, 2018', title: 'External Commercial Borrowings (ECBs) — Monthly reporting through ECB 2 Return', status: 'Consolidated', theme: 'III. ECB', subTheme: 'Borrowing Limits & Maturity', url: '' },
+  { id: 'n083', date: 'Jun 01, 2018', title: 'Foreign Exchange Management (Transfer or Issue of Security by a Person Resident outside India) Regulations, 2018', status: 'Consolidated', theme: 'I. FDI', subTheme: 'Entry Routes & Sectoral Caps', url: '' },
+  { id: 'n084', date: 'Apr 27, 2018', title: 'External Commercial Borrowings (ECB) Policy — Rationalisation and Liberalisation', status: 'Consolidated', theme: 'III. ECB', subTheme: 'Borrowing Limits & Maturity', url: '' },
+  { id: 'n085', date: 'Apr 12, 2018', title: 'Liberalised Remittance Scheme (LRS) for Resident Individuals — Daily reporting of transactions', status: 'Consolidated', theme: 'IV. Remittances and Capital Flight', subTheme: 'Individual Remittance Limits', url: '' },
+  { id: 'n086', date: 'Apr 06, 2018', title: 'Foreign Exchange Management (Transfer or Issue of Security by a Person Resident Outside India) Regulations, 2017 (Amended up to March 08, 2019)', status: 'Consolidated', theme: 'I. FDI', subTheme: 'Entry Routes & Sectoral Caps', url: '' },
+  { id: 'n087', date: 'Mar 26, 2018', title: 'Foreign Exchange Management (Acquisition and Transfer of Immovable Property in India) Regulations, 2018', status: 'Consolidated', theme: 'IV. Remittances and Capital Flight', subTheme: 'NRI/PIO Investment Framework', url: '' },
+  { id: 'n088', date: 'Mar 26, 2018', title: 'Foreign Exchange Management (Transfer or Issue of Security by a Person Resident outside India) (Amendment) Regulations, 2018', status: 'Consolidated', theme: 'I. FDI', subTheme: 'Entry Routes & Sectoral Caps', url: '' },
+  { id: 'n089', date: 'Mar 20, 2018', title: 'Foreign Exchange Management (Cross Border Merger) Regulations, 2018', status: 'Active', theme: 'I. FDI', subTheme: 'Procedural Simplification', url: '' },
+  { id: 'n090', date: 'Jan 04, 2018', title: 'Refinancing of External Commercial Borrowings', status: 'Consolidated', theme: 'III. ECB', subTheme: 'Borrowing Limits & Maturity', url: '' },
+  { id: 'n091', date: 'Nov 14, 2017', title: 'Foreign Exchange Management (Transfer or Issue of any Foreign Security) (Amendment) Regulations, 2017', status: 'Superseded', theme: 'I. FDI', subTheme: 'Entry Routes & Sectoral Caps', url: '' },
+  { id: 'n092', date: 'Nov 07, 2017', title: 'Foreign Exchange Management (Transfer or Issue of Security by a Person Resident Outside India) Regulations, 2017', status: 'Consolidated', theme: 'I. FDI', subTheme: 'Entry Routes & Sectoral Caps', url: '' },
+  { id: 'n093', date: 'Jun 23, 2017', title: 'Foreign Exchange Management (Export of Goods and Services) (Amendment) Regulations, 2017', status: 'Superseded', theme: 'IV. Remittances and Capital Flight', subTheme: 'Repatriation Norms', url: '' },
+  { id: 'n094', date: 'Mar 09, 2017', title: 'Foreign Exchange Management (Transfer or Issue of Security by a Person Resident outside India) (Fourth Amendment) Regulations, 2017', status: 'Superseded', theme: 'I. FDI', subTheme: 'Entry Routes & Sectoral Caps', url: '' },
+  { id: 'n095', date: 'Mar 03, 2017', title: 'Foreign Exchange Management (Transfer or Issue of Security by a Person Resident outside India) (Second Amendment) Regulations, 2017', status: 'Superseded', theme: 'I. FDI', subTheme: 'Entry Routes & Sectoral Caps', url: '' },
+  { id: 'n096', date: 'Feb 02, 2017', title: 'Foreign Exchange Management Act, 1999 (FEMA) — Compounding of Contraventions under FEMA, 1999 (Foreign Exchange Compounding Proceedings Rules, 2000)', status: 'Superseded', theme: 'VI. Systemic Risk', subTheme: 'Crisis Management & Resolution', url: '' },
+  { id: 'n097', date: 'Jan 10, 2017', title: 'Foreign Exchange Management (Transfer or Issue of Security by a Person Resident outside India) (Amendment) Regulations, 2017', status: 'Superseded', theme: 'I. FDI', subTheme: 'Entry Routes & Sectoral Caps', url: '' },
+  { id: 'n098', date: 'Jan 10, 2017', title: 'Foreign Exchange Management (Transfer or Issue of Security by a Person Resident outside India) (Fifteenth Amendment) Regulations, 2016', status: 'Superseded', theme: 'I. FDI', subTheme: 'Entry Routes & Sectoral Caps', url: '' },
+  { id: 'n099', date: 'Jan 02, 2017', title: 'Foreign Exchange Management (Transfer or Issue of any Foreign Security) (Second Amendment) Regulations, 2016', status: 'Superseded', theme: 'I. FDI', subTheme: 'Entry Routes & Sectoral Caps', url: '' },
+];
+
+// DATA — Master Directions (20 records)
+const MASTER_DIRECTIONS = [
+  { title: 'Master Directions — Compounding of Contraventions under FEMA, 1999', refNum: 'FED Master Direction No.04/2025-26', published: 'April 22, 2025', lastUpdated: 'April 24, 2025', addressee: 'All AD Category – I banks and Authorised banks', coverage: 'Compounding, FEMA enforcement, PRAVAAH filing, penalty computation', tags: ['Compounding', 'Enforcement'], status: 'Active' },
+  { title: 'Master Direction — Overseas Investment', refNum: 'FED Master Direction No.15/2024-25', published: 'July 24, 2024', lastUpdated: 'April 01, 2026', addressee: 'All AD Category – I banks', coverage: 'ODI, OI Rules, Round-tripping, Financial commitment, Pricing guidelines, IFSC', tags: ['ODI', 'FDI', 'IFSC'], status: 'Active' },
+  { title: 'Master Direction — External Commercial Borrowings, Trade Credits and Structured Obligations', refNum: 'FED Master Direction No.5/2019-20', published: 'March 26, 2019', lastUpdated: 'February 16, 2026', addressee: 'All AD Category – I banks and Authorised banks', coverage: 'ECB, Trade Credits, Structured Obligations, LIBOR transition, End-use restrictions, Hedging', tags: ['ECB', 'Trade Credit'], status: 'Active' },
+  { title: 'Master Direction — Foreign Investment in India', refNum: 'FED Master Direction No.11/2017-18', published: 'January 04, 2018', lastUpdated: 'January 20, 2025', addressee: 'All AD Category – I banks and Authorised banks', coverage: 'FDI, FPI, Sectoral caps, Entry routes, Downstream investment, Reporting', tags: ['FDI', 'FPI'], status: 'Active' },
+  { title: 'Master Direction — Money Transfer Service Scheme (MTSS)', refNum: '', published: 'February 23, 2017', lastUpdated: 'November 28, 2025', addressee: 'All AD Category – I banks and Authorised banks', coverage: 'MTSS, Inward remittance, Eligibility norms, Operational guidelines, Compliance', tags: ['Remittance', 'MTSS'], status: 'Active' },
+  { title: 'Master Direction — Insurance', refNum: '', published: 'November 17, 2016', lastUpdated: 'December 07, 2021', addressee: 'All AD Category – I banks and Authorised banks', coverage: 'Insurance premiums, Investment conditions, Cross-border insurance arrangements, Reporting', tags: ['Insurance', 'FDI'], status: 'Active' },
+  { title: 'Master Direction — Establishment of Branch Office (BO)/ Liaison Office (LO)/ Project Office (PO) or any other place of business in India by foreign entities', refNum: '', published: 'January 04, 2016', lastUpdated: 'May 18, 2021', addressee: 'All AD Category – I banks and Authorised banks', coverage: 'BO/LO/PO establishment, Annual Activity Certificate, Repatriation, Reporting', tags: ['FDI', 'BO/LO/PO'], status: 'Active' },
+  { title: 'Master Direction — Direct Investment by Residents in Joint Venture (JV) / Wholly Owned Subsidiary (WOS) Abroad', refNum: '', published: 'January 04, 2016', lastUpdated: 'June 24, 2021', addressee: 'All AD Category – I banks and Authorised banks', coverage: 'ODI, JV/WOS abroad, Financial commitment, Reporting, Obligations', tags: ['ODI', 'JV/WOS'], status: 'Active' },
+  { title: 'Master Direction — Borrowing and Lending transactions in Indian Rupee between Persons Resident in India and NRIs/PIOs', refNum: '', published: 'January 04, 2016', lastUpdated: 'February 16, 2026', addressee: 'All AD Category – I banks and Authorised banks', coverage: 'NRI borrowing and lending, Rate of interest, Reporting, Rupee transactions', tags: ['NRI', 'Borrowing'], status: 'Active' },
+  { title: 'Master Direction — Liberalised Remittance Scheme (LRS)', refNum: '', published: 'January 04, 2016', lastUpdated: 'September 06, 2024', addressee: 'All AD Category – I banks and Authorised banks', coverage: 'LRS, USD 250,000 limit, Permitted transactions, CIMS reporting, Purpose codes', tags: ['LRS', 'Remittance'], status: 'Active' },
+  { title: 'Master Direction — Other Remittance Facilities', refNum: '', published: 'January 04, 2016', lastUpdated: 'March 10, 2026', addressee: 'All AD Category – I banks and Authorised banks', coverage: 'Miscellaneous remittances, Specific facilities, NRI remittances beyond LRS', tags: ['Remittance'], status: 'Active' },
+  { title: 'Master Direction — Acquisition or Transfer of Immovable Property under FEMA, 1999', refNum: '', published: 'January 04, 2016', lastUpdated: 'September 01, 2022', addressee: 'All AD Category – I banks and Authorised banks', coverage: 'Immovable property, NRI acquisition in India, Overseas property, Repatriation of sale proceeds', tags: ['Immovable Property', 'NRI'], status: 'Active' },
+  { title: 'Master Direction — Remittance of Assets', refNum: '', published: 'January 04, 2016', lastUpdated: 'April 28, 2016', addressee: 'All AD Category – I banks and Authorised banks', coverage: 'Remittance of assets by NRIs, Remittance by foreign nationals, Conditions and limits', tags: ['Remittance', 'NRI'], status: 'Active' },
+  { title: 'Master Direction — Deposits and Accounts', refNum: '', published: 'January 04, 2016', lastUpdated: 'October 09, 2025', addressee: 'All AD Category – I banks and Authorised banks', coverage: 'NRE, NRO, FCNR(B), SNRR accounts, Deposit regulations, Non-resident accounts', tags: ['Deposits', 'NRI'], status: 'Active' },
+  { title: 'Master Direction — Import of Goods and Services', refNum: '', published: 'January 04, 2016', lastUpdated: 'January 12, 2026', addressee: 'All AD Category – I banks and Authorised banks', coverage: 'Import payments, Advance payment, Usance period, Evidence of import, Import factoring', tags: ['Import', 'Trade'], status: 'Consolidated' },
+  { title: 'Master Direction — Reporting under Foreign Exchange Management Act, 1999', refNum: '', published: 'January 04, 2016', lastUpdated: 'April 01, 2026', addressee: 'All AD Category – I banks and Authorised banks', coverage: 'FDI, FPI, ECB, Trade Credits, Structured Obligations, Foreign Currency Accounts, Guarantees, ODI, BO/LO/PO, Immovable Property — all reporting', tags: ['Reporting', 'FDI', 'ECB', 'ODI'], status: 'Active' },
+  { title: 'Master Direction — Miscellaneous', refNum: '', published: 'January 04, 2016', lastUpdated: 'November 12, 2018', addressee: 'All AD Category – I banks and Authorised banks', coverage: 'Sundry FEMA facilities, Currency chest, Miscellaneous provisions', tags: ['Miscellaneous'], status: 'Active' },
+  { title: 'Master Direction — Opening and Maintenance of Rupee/Foreign Currency Vostro Accounts of Non-resident Exchange Houses', refNum: '', published: 'January 04, 2016', lastUpdated: 'December 22, 2022', addressee: 'All AD Category – I banks and Authorised banks', coverage: 'Vostro accounts, Non-resident exchange houses, Permissible credits and debits, Reporting', tags: ['Vostro', 'NRI'], status: 'Active' },
+  { title: 'Master Direction — Export of Goods and Services', refNum: '', published: 'January 04, 2016', lastUpdated: 'January 12, 2026', addressee: 'All AD Category – I banks and Authorised banks', coverage: 'Export proceeds, Repatriation, EDPMS, GR/SDF form, Write-off of export bills, Export factoring', tags: ['Export', 'Trade'], status: 'Consolidated' },
+  { title: 'Master Direction — Money Changing Activities', refNum: '', published: 'March 29, 2019', lastUpdated: 'April 2, 2026', addressee: 'All AD Category – I and II banks and Authorised banks', coverage: 'FFMC authorisation, Money changing, Purchase/sale of foreign currency, Reporting', tags: ['Money Changing', 'FFMC'], status: 'Active' },
+];
+
+// Dashboard Cards
+const CARDS = [
+  {
+    id: 1, source: 'RBI', category: 'Capital Controls',
+    title: 'Master Direction — Overseas Investment',
+    subtitle: '(Updated April 01, 2026)', date: 'Apr 2026', status: 'active',
+    tags: ['ODI', 'FDI'],
+    summary: 'Comprehensive update to the Overseas Investment framework under FEMA — AD bank certification now mandatory for all Round-Tripping declarations under Schedule III. Covers ODI in startups, IFSC entities, deferred payment structures and revised APR templates.',
+    ai: {
+      plain: 'The RBI has revised its master playbook for how Indian companies and individuals can invest abroad. The big change is around "round-tripping" — money leaving India and quietly coming back in as FDI. Banks (called AD Category-I banks) must now formally certify that an investment is genuine before it goes through. This closes a loophole that some entities had used to inflate FDI figures.',
+      affected: ['Indian companies making investments in overseas subsidiaries or Joint Ventures', 'Resident individuals investing abroad under Schedule III of FEMA', 'AD Category-I Banks processing ODI applications', 'GIFT City entities structuring outbound investments through IFSC'],
+      legal: ['Non-compliance with AD certification requirement will be treated as a reportable contravention under FEMA Section 13, attracting penalty up to three times the amount involved.', 'Step-down subsidiary investments now require explicit approval if the subsidiary is in a FATF non-compliant jurisdiction.', 'Existing ODI structures must be reviewed within 90 days of the April 2026 amendment date for Schedule III compliance.', 'Annual Performance Reports (APR) must incorporate revised template fields introduced by this update.'],
+    },
+  },
+  {
+    id: 2, source: 'RBI', category: 'Compounding & Enforcement',
+    title: 'Master Directions — Compounding of Contraventions under FEMA, 1999',
+    subtitle: '(April 22, 2025)', date: 'Apr 2025', status: 'active',
+    tags: ['Compounding', 'Enforcement'],
+    summary: 'New Master Direction replaces the 2022 compounding framework. Key changes: voluntary disclosure discount (25% penalty reduction), mandatory PRAVAAH portal filing for applications above ₹10 Cr, revised penalty matrix with 1.5x multiplier for repeat contraventions within 3 years.',
+    ai: {
+      plain: 'When a company or individual violates FEMA — even unintentionally — they can "compound" (settle) the offence by paying a fee to the RBI instead of facing prosecution. These updated rules make that process faster and more digital. The fee calculation has been revised, and for the first time, companies that proactively disclose their own violations get a meaningful discount on the penalty.',
+      affected: ['Companies and individuals who have delayed or missed FEMA reporting obligations (e.g., FCGPR, FLA, APR)', 'Authorised Dealer banks advising clients on compounding applications', 'Legal counsel and chartered accountants handling FEMA compliance reviews', 'Foreign companies with Indian subsidiaries who may have legacy contraventions'],
+      legal: ['Voluntary disclosure applications filed within 12 months of contravention attract a 25% reduction in computed penalty under the revised matrix.', 'All compounding applications above ₹10 crore must now be routed through the PRAVAAH portal — physical filings are no longer accepted.', 'Repeat contraventions within a 3-year window attract a 1.5x multiplier on the base penalty computation.', 'Compounding orders are now published on the RBI website within 15 days of issuance, enhancing public accountability.'],
+    },
+  },
+  {
+    id: 3, source: 'RBI', category: 'Debt Instruments / FPI',
+    title: 'Foreign Exchange Management (Debt Instruments) (Fourth Amendment) Regulations, 2025',
+    subtitle: '(September 29, 2025)', date: 'Sep 2025', status: 'active',
+    tags: ['FPI', 'Debt Instruments'],
+    summary: 'Fourth amendment to the FEM (Debt Instruments) Regulations 2019 — expands eligible FPI categories under the Fully Accessible Route (FAR), rationalises investment limits for G-Secs and corporate bonds, and aligns with SEBI FPI Regulations 2024.',
+    ai: {
+      plain: 'Foreign Portfolio Investors can now hold more types of Indian government bonds and corporate bonds with fewer restrictions. The "Fully Accessible Route" — which lets foreigners buy certain bonds without limits — has been expanded. This is part of India\'s effort to attract more global bond-market capital, especially after India\'s inclusion in global bond indices.',
+      affected: ['Foreign Portfolio Investors with debt mandates and emerging-market bond strategies', 'Custodian banks managing FPI debt portfolios', 'Indian primary dealers and bond arrangers', 'Sovereign wealth funds and pension funds investing in Indian fixed income'],
+      legal: ['FPIs must re-categorise holdings under revised FAR and non-FAR buckets within 60 days of the amendment date.', 'Excess holding beyond revised limits triggers mandatory disposal within the period specified in SEBI FPI Regulations 2024.', 'Custodians must update tagging in their reporting to both SEBI and RBI — commingling FAR and non-FAR holdings is non-compliant.', 'Voluntary limits for FPIs in individual corporate bond ISINs are now 15% (up from 10%) of outstanding for eligible issuers.'],
+    },
+  },
+  {
+    id: 4, source: 'RBI', category: 'Remittance',
+    title: 'LRS Daily Return — Extended to AD Cat-II Banks & FFMCs',
+    subtitle: '(December 03, 2025)', date: 'Dec 2025', status: 'active',
+    tags: ['LRS', 'Remittance'],
+    summary: 'RBI extends the mandate for submission of LRS Daily Return via CIMS to Authorised Dealers Category-II and Full-Fledged Money Changers (FFMCs) in addition to existing AD Cat-I bank obligations. Effective from January 1, 2026.',
+    ai: {
+      plain: 'Previously, only large banks (AD Category-I) had to report LRS transactions to the RBI every day. Now smaller forex dealers and money changers (FFMCs) also have to report daily. This broadens the RBI\'s surveillance net — any attempt to break up a large remittance across different types of dealers will now be visible in real time.',
+      affected: ['AD Category-II authorised dealers (including some cooperative banks and small finance banks)', 'Full-Fledged Money Changers (FFMCs) licensed by RBI', 'Technology and compliance teams of smaller forex dealers needing CIMS integration', 'Retail customers using non-bank forex channels for LRS remittances'],
+      legal: ['Non-submission of the LRS Daily Return by Cat-II ADs and FFMCs from January 1, 2026 constitutes a reporting violation under FEMA Section 10(5).', 'Technical readiness for CIMS integration must be certified to RBI by December 20, 2025 per the circular.', 'Purpose code accuracy requirement extends to Cat-II ADs — incorrect coding attracts the same penalties as for Cat-I banks.', 'Aggregate breach of USD 250,000 limit detected across all dealer types triggers automatic ED referral.'],
+    },
+  },
+  {
+    id: 5, source: 'RBI', category: 'ECB / Borrowing',
+    title: 'Foreign Exchange Management (Borrowing and Lending) (Amendment) Regulations, 2025',
+    subtitle: '(October 13, 2025)', date: 'Oct 2025', status: 'active',
+    tags: ['ECB', 'Borrowing'],
+    summary: 'Amendment to the FEM (Borrowing and Lending) Regulations 2018 — revises eligible borrower and lender categories, updates end-use restrictions, and aligns overnight and short-term ECB provisions with revised LIBOR-transition guidelines under the Master Direction.',
+    ai: {
+      plain: 'These regulations govern how Indian companies can borrow money from abroad (External Commercial Borrowings). The 2025 amendment cleans up several provisions — particularly around short-term borrowings and which foreign lenders are "eligible." With LIBOR now dead (replaced by benchmarks like SOFR/TONAR), the regulations also formally update interest rate benchmark references.',
+      affected: ['Indian corporates (especially infrastructure and manufacturing) that borrow in foreign currency', 'Foreign lenders (banks, insurance companies, pension funds) providing ECBs to Indian entities', 'AD Category-I Banks processing and reporting ECB drawdowns', 'Companies with existing ECBs on LIBOR-linked rates needing transition documentation'],
+      legal: ['ECBs referencing LIBOR post-June 30, 2023 must have completed transition documentation — any remaining LIBOR-linked facilities are contractually non-compliant and must be remediated.', 'End-use restriction: proceeds of ECBs cannot be used for real estate activities or working capital (unless specifically approved under the approval route).', 'Borrowers must file Form ECB 2 Return monthly with the designated AD bank throughout the loan tenure.', 'Any prepayment of ECB below the minimum average maturity requires prior RBI approval under the approval route.'],
+    },
+  },
+  {
+    id: 6, source: 'RBI', category: 'FDI',
+    title: 'Foreign Exchange Management (Overseas Investment) Regulations, 2022',
+    subtitle: '(August 22, 2022)', date: 'Aug 2022', status: 'active',
+    tags: ['ODI', 'FDI'],
+    summary: 'Landmark regulations replacing the old FEMA 19/120 framework — introduce a unified regime for Overseas Direct Investment (ODI) and Overseas Portfolio Investment (OPI). Defines permitted structures, financial commitment caps, and new compliance obligations for Indian entities investing abroad.',
+    ai: {
+      plain: 'India completely overhauled its overseas investment rules in 2022. Before this, the framework was fragmented across multiple FEMA notifications (FEMA 19 and FEMA 120). The new regulations create one consolidated regime — clearer definitions of what "Overseas Direct Investment" means, a new concept of "Overseas Portfolio Investment," and fresh rules on how much an Indian company can invest abroad.',
+      affected: ['Indian companies with existing overseas subsidiaries or joint ventures', 'Resident individuals seeking to invest in foreign securities or funds', 'Private equity and venture capital funds investing in Indian entities with overseas portfolios', 'AD Category-I Banks administering ODI transactions'],
+      legal: ['The ODI limit is now 400% of the net worth of the Indian entity — entities exceeding this must obtain prior RBI approval.', 'Round-tripping is explicitly prohibited — any overseas investment that results in a foreign entity investing back into the Indian entity constitutes a contravention.', 'All existing overseas investments made under FEMA 19/120 are deemed to be compliant under the new framework — no fresh approvals needed for legacy structures.', 'The new APR (Annual Performance Report) must be filed on the OID portal by December 31 every year for each overseas entity.'],
+    },
+  },
+  {
+    id: 7, source: 'RBI', category: 'Compounding',
+    title: 'Late Submission Fee for Reporting Delays under FEMA',
+    subtitle: '(September 30, 2022)', date: 'Sep 2022', status: 'active',
+    tags: ['Compounding', 'Reporting'],
+    summary: 'RBI introduced a Late Submission Fee (LSF) regime as an alternative to formal compounding for minor reporting delays under FEMA. LSF is calculated as a fixed amount per day of delay on a tiered basis — significantly faster than the formal compounding process.',
+    ai: {
+      plain: 'If you miss a FEMA reporting deadline (like filing the FCGPR form after issuing shares to a foreign investor), you used to have to go through a full compounding process. Now, for minor delays, you can simply pay a Late Submission Fee (LSF) — a fixed fee per day — and be done with it. This is much faster and less expensive for genuine inadvertent delays.',
+      affected: ['Indian companies that receive foreign investment and need to file FCGPR, FC-TRS, FCTRS forms', 'Indian entities with overseas investments that file ODI reporting forms', 'Companies that have received ECB loans and need to file ECB returns', 'Compliance and secretarial teams monitoring FEMA reporting calendars'],
+      legal: ['LSF is calculated per day of delay: ₹5,000 per day for delays up to 90 days, ₹10,000 per day for delays of 91–180 days, with a cap at the compounding amount.', 'Payment of LSF does not preclude the RBI from initiating compounding proceedings if the delay exceeds 3 years or involves a wilful default.', 'LSF is payable online through the PRAVAAH portal before filing the delayed report.', 'LSF facility is not available for contraventions detected by the Enforcement Directorate — those must go through formal compounding.'],
+    },
+  },
+  {
+    id: 8, source: 'RBI', category: 'FPI / Derivatives',
+    title: 'Master Direction — Hedging of Commodity Price Risk and Freight Risk in Overseas Markets, 2022',
+    subtitle: '(Updated April 15, 2024)', date: 'Apr 2024', status: 'active',
+    tags: ['Derivatives', 'ECB'],
+    summary: 'Consolidated Master Direction permitting eligible Indian entities to hedge commodity price risk and freight risk in overseas derivative markets. Sets out eligible hedgers, approved exchanges, product types, reporting requirements, and AD bank responsibilities.',
+    ai: {
+      plain: 'Indian companies that buy or sell commodities internationally (oil, metals, agri-products) can now hedge their price risk on overseas exchanges. This is crucial — if you\'re an Indian refiner buying crude oil, you can now buy price protection on the CME or ICE without a separate RBI approval for each transaction, as long as you follow these directions.',
+      affected: ['Indian corporates with commodity price exposure — oil refiners, metal traders, shipping companies', 'AD Category-I Banks offering commodity hedging advisory services', 'Approved exchanges and brokers facilitating overseas hedging by Indian entities', 'Exporters and importers seeking freight risk hedging'],
+      legal: ['Eligible hedgers must register with the AD bank before transacting on overseas exchanges — ad hoc or unregistered hedging is non-compliant.', 'Hedging positions must have an underlying — speculative positions dressed as hedges are a FEMA contravention.', 'Monthly reporting to the AD bank of all open positions on overseas exchanges is mandatory.', 'AD banks must obtain a declaration from the eligible entity confirming the underlying exposure before permitting the hedge.'],
+    },
+  },
+];
+
+// ═══════════════════════════════════════════════════════
+// PRESS RELEASES & NEWS DATA (33 items, reverse chron)
+// ═══════════════════════════════════════════════════════
+const PRESS_ITEMS = [
+  {
+    id: 'pr001',
+    source: 'RBI',
+    category: 'Monetary Policy',
+    title: "Governor's Statement: June 05, 2026",
+    date: 'Jun 05, 2026',
+    refNum: '—',
+    tags: ['Capital Flows', 'ECB', 'FAR', 'FCNR(B)', 'LRS'],
+    summary: "The RBI Governor's Statement of June 5, 2026 accompanied the MPC resolution for June 2026, containing RBI's forward guidance on the rupee, capital flows, and a comprehensive package to attract foreign exchange inflows including FAR expansion, FCNR(B) swap facility, PSU ECB swap window, restored export realization period, and NRI/OCI equity limit liberalization. No restrictions on capital outflows are under consideration.",
+    importance: "The Governor's Statement is the single most authoritative RBI communication on foreign exchange management policy. Every FEMA-adjacent measure announced in June 2026 — FAR, FCNR(B), ECB swap, export repatriation — originates from this statement and is legally operative from this date.",
+    url: 'https://www.rbi.org.in/scripts/BS_PressReleaseDisplay.aspx',
+  },
+  {
+    id: 'pr002',
+    source: 'RBI',
+    category: 'Monetary Policy',
+    title: 'Monetary Policy Statement, 2026-27: MPC Resolution — June 3–5, 2026',
+    date: 'Jun 05, 2026',
+    refNum: '—',
+    tags: ['Capital Flows', 'ECB', 'FAR', 'NRI'],
+    summary: 'The formal MPC Resolution for June 2026 held the repo rate unchanged at 5.25% with a neutral stance, and was accompanied by the Statement on Developmental and Regulatory Policies announcing a full capital-flow support package. Structural changes to the Fully Accessible Route, concessional swap facilities for FCNR(B) deposits and PSU ECBs, and revised NRI/OCI equity investment limits were all included.',
+    importance: 'The MPC Resolution is the operative legal instrument for RBI monetary policy stance and the gateway document authorizing all developmental and regulatory policy changes announced alongside it, including FEMA-affecting measures on capital flows.',
+    url: 'https://www.rbi.org.in/scripts/BS_PressReleaseDisplay.aspx',
+  },
+  {
+    id: 'pr003',
+    source: 'RBI',
+    category: 'Survey / Data',
+    title: 'RBI Launches Survey on Foreign Liabilities and Assets of Mutual Funds: 2025-26 Round',
+    date: 'Jun 01, 2026',
+    refNum: '—',
+    tags: ['FPI', 'Reporting', 'Overseas Inv.'],
+    summary: 'The RBI launched the 2025-26 round of its annual Survey on Foreign Liabilities and Assets (FLA) of Mutual Funds, requiring all mutual funds with cross-border investment activity to report their foreign asset and liability positions. Data collected feeds into India\'s International Investment Position (IIP) and BOP statistics.',
+    importance: 'The FLA Survey of Mutual Funds is a FEMA-related data collection exercise. Data collected directly informs RBI monitoring of whether mutual funds\' overseas investments comply with SEBI\'s prescribed limits and FEMA\'s Overseas Portfolio Investment regulations.',
+    url: 'https://www.rbi.org.in/scripts/BS_PressReleaseDisplay.aspx',
+  },
+  {
+    id: 'pr004',
+    source: 'RBI',
+    category: 'Forex Market',
+    title: 'RBI to Inject Liquidity Through Long-Term USD/INR Buy/Sell Swap Auction',
+    date: 'May 20, 2026',
+    refNum: '—',
+    tags: ['Forex Market', 'ECB', 'Hedging'],
+    summary: 'The RBI announced a long-term USD/INR Buy/Sell Swap auction to inject rupee liquidity into the banking system using foreign exchange as the collateral instrument. The announcement came during the period of acute rupee pressure when the currency was approaching its record low of 96.96.',
+    importance: 'USD/INR Buy/Sell Swap auctions are a key RBI tool at the intersection of monetary policy and foreign exchange management. They affect the forward premium curve, rupee liquidity, and the effective cost of currency hedging for entities with FEMA obligations under ECB and trade-related frameworks.',
+    url: 'https://www.rbi.org.in/scripts/BS_PressReleaseDisplay.aspx',
+  },
+  {
+    id: 'pr005',
+    source: 'SEBI',
+    category: 'FPI Regulation',
+    title: 'Removal of Difficulties for On-Boarding for FPIs — PAN Allotment Related Issues',
+    date: 'May 15, 2026',
+    refNum: 'PR No. 30/2026',
+    tags: ['FPI', 'Onboarding', 'KYC'],
+    summary: 'SEBI addressed ongoing difficulties in the FPI on-boarding process related to PAN allotment, which had been causing delays in FPI registration and operational commencement. A remedial mechanism allows FPIs to begin provisional investment operations using a tracking reference pending PAN issuance.',
+    importance: 'PAN allotment delays are a documented friction point in India\'s FPI onboarding process, directly impeding timely deployment of foreign capital into Indian markets. Removing this bottleneck accelerates the conversion of FPI registrations into actual capital inflows — a direct contribution to India\'s capital account objectives under FEMA.',
+    url: 'https://www.sebi.gov.in/media-and-notifications/press-releases/may-2026/removal-of-difficulties-for-on-boarding-for-fpis-pan-allotment-related-issues_93044.html',
+  },
+  {
+    id: 'pr006',
+    source: 'RBI',
+    category: 'ECB / Data',
+    title: 'RBI Releases Data on ECB / FCCB / RDB for March 2026',
+    date: 'May 14, 2026',
+    refNum: '—',
+    tags: ['ECB', 'FCCB', 'Reporting'],
+    summary: 'The RBI published its monthly data release on External Commercial Borrowings (ECBs), Foreign Currency Convertible Bonds (FCCBs), and Rupee Denominated Bonds (RDBs) — Masala Bonds — for March 2026. The data covers new ECB approvals, drawdowns, repayments, and outstanding amounts disaggregated by sector, currency, and end-use.',
+    importance: 'Monthly ECB/FCCB/RDB data is the definitive official dataset for tracking India\'s cross-border debt capital flows under FEMA. It informs BoP accounting, enables tracking of compliance with RBI\'s ECB Master Directions, and is used by FEMA practitioners to benchmark market norms.',
+    url: 'https://www.rbi.org.in/scripts/BS_PressReleaseDisplay.aspx',
+  },
+  {
+    id: 'pr007',
+    source: 'RBI',
+    category: 'RBI-ECB MoU',
+    title: 'RBI and European Central Bank Sign MoU on Mutual Cooperation',
+    date: 'May 10, 2026',
+    refNum: '—',
+    tags: ['Capital Flows', 'FPI', 'ECB'],
+    summary: 'The RBI and the European Central Bank signed an MoU on mutual cooperation, covering information sharing, regulatory coordination, and cooperation on payment systems, cross-border capital flows, and financial stability. The MoU establishes a framework for bilateral engagement on EUR/INR exchange rate developments, cross-border banking supervision, and potential future EUR/INR swap arrangements.',
+    importance: 'The RBI-ECB MoU has direct relevance to FEMA-regulated cross-border flows between India and the Eurozone — India\'s third-largest trade and investment partner. It creates a regulatory cooperation framework relevant to FPI flows from EU-domiciled funds, ECBs from European lenders, and EUR-denominated trade finance.',
+    url: 'https://www.rbi.org.in/scripts/BS_PressReleaseDisplay.aspx',
+  },
+  {
+    id: 'pr008',
+    source: 'RBI',
+    category: 'Forex Market',
+    title: 'Foreign Exchange Turnover Data: March 2026 Weeks',
+    date: 'May 08, 2026',
+    refNum: '—',
+    tags: ['Forex Market', 'Hedging', 'Reporting'],
+    summary: 'The RBI released four weeks of Foreign Exchange Turnover Data covering March 2–27, 2026, disclosing the total volume of USD/INR spot, forward, and swap transactions executed in the interbank and merchant forex markets. March 2026 turnover data reflects end-of-financial-year forex market activity.',
+    importance: 'Forex turnover data is the primary official measure of USD/INR market activity and liquidity. It enables FEMA analysts to assess market depth, monitor systemic hedging patterns, and understand structural drivers of USD/INR exchange rate movements — essential context for compliance with RBI\'s mandatory hedging frameworks.',
+    url: 'https://www.rbi.org.in/scripts/BS_PressReleaseDisplay.aspx',
+  },
+  {
+    id: 'pr009',
+    source: 'RBI',
+    category: 'Authorised Persons',
+    title: 'RBI Issues Directions on Reporting Instructions for Authorised Dealer Category-I Banks',
+    date: 'Apr 27, 2026',
+    refNum: '—',
+    tags: ['Reporting', 'Authorised Dealer', 'FEMA'],
+    summary: 'The RBI issued final Directions on Reporting Instructions for AD Category-I Banks, specifying data fields, formats, timelines, and systems (including the FIRMS portal) for reporting all foreign exchange transactions under FEMA — trade transactions, capital account transactions, ECBs, ODI/OPI flows, remittances, and NRI deposit data.',
+    importance: 'Accurate and timely FEMA reporting by AD-I banks is the RBI\'s primary mechanism for monitoring India\'s balance of payments, tracking compliance with capital account limits, and detecting potential FEMA violations. These Directions are the operative compliance instrument for all FEMA reporting obligations of authorized dealers.',
+    url: 'https://www.rbi.org.in/scripts/BS_PressReleaseDisplay.aspx',
+  },
+  {
+    id: 'pr010',
+    source: 'SEBI',
+    category: 'AIF Regulation',
+    title: 'SEBI Operationalises Fast-Track Mechanism for Processing of Placement Memorandum of AIFs',
+    date: 'Apr 30, 2026',
+    refNum: 'PR No. 29/2026',
+    tags: ['AIF', 'FDI', 'Overseas Inv.'],
+    summary: 'SEBI announced the operationalization of a Fast-Track Mechanism for processing Placement Memoranda (PMs) filed by Alternative Investment Funds (AIFs), reducing the processing time for new fund launches. The fast-track route allows eligible AIFs to receive SEBI acknowledgment within 30 days versus the standard 90-day timeline.',
+    importance: 'AIFs are a primary vehicle through which foreign capital (FPI, FDI, and NRI money) enters Indian private markets under FEMA\'s capital account framework. A faster PM processing mechanism reduces time-to-market for new funds, improving the efficiency of cross-border capital deployment.',
+    url: 'https://www.sebi.gov.in/media-and-notifications/press-releases/apr-2026/sebi-operationalises-fast-track-mechanism-for-processing-of-placement-memorandum-of-aifs-filed-with-sebi_92743.html',
+  },
+  {
+    id: 'pr011',
+    source: 'RBI',
+    category: 'Forex Reserves',
+    title: '46th Half-Yearly Report on Management of Foreign Exchange Reserves: Oct 2025 – Mar 2026',
+    date: 'Apr 30, 2026',
+    refNum: '—',
+    tags: ['Forex Reserves', 'Capital Flows', 'BoP'],
+    summary: 'The RBI published its 46th Half-Yearly Report on the Management of Foreign Exchange Reserves covering October 2025 to March 2026, detailing reserve composition, investment policy, risk management framework, and reserve level changes. The period saw India\'s reserves reach an all-time high of $728.49 billion before RBI intervention spending.',
+    importance: 'This report is the most authoritative official document on India\'s foreign exchange reserve policy — the cornerstone of RBI\'s capacity to manage the rupee under FEMA\'s capital account convertibility framework. It is a primary reference for any analysis of India\'s external sector strength.',
+    url: 'https://www.rbi.org.in/scripts/BS_PressReleaseDisplay.aspx',
+  },
+  {
+    id: 'pr012',
+    source: 'SEBI',
+    category: 'AML / FIU',
+    title: 'SEBI Signs MoU with Financial Intelligence Unit India (FIU-India)',
+    date: 'Apr 16, 2026',
+    refNum: 'PR No. 26/2026',
+    tags: ['AML', 'FPI', 'Enforcement'],
+    summary: 'SEBI signed an MoU with FIU-India to strengthen information sharing and cooperation on AML, counter-terrorism financing (CTF), and suspicious transaction reporting (STR). The MoU establishes protocols for FIU-India to share financial intelligence with SEBI in cases involving potential misuse of capital markets for money laundering, including round-tripping of foreign capital.',
+    importance: 'This MoU directly strengthens India\'s AML/CTF architecture for cross-border capital flows. Given that FPI and FDI channels under FEMA are the primary pathways for potential round-tripping and money laundering, enhanced SEBI-FIU cooperation is a significant regulatory risk factor for foreign investors operating in India.',
+    url: 'https://www.sebi.gov.in/media-and-notifications/press-releases/apr-2026/securities-and-exchange-board-of-india-sebi-signed-a-memorandum-of-understanding-with-financial-intelligence-unit-india-fiu-india_92395.html',
+  },
+  {
+    id: 'pr013',
+    source: 'RBI',
+    category: 'Authorised Persons',
+    title: 'Issuance of Foreign Exchange Management (Authorised Persons) Regulations, 2026',
+    date: 'May 06, 2026',
+    refNum: 'FEMA 401/2026-RB',
+    tags: ['FEMA', 'Authorised Dealer', 'Compliance'],
+    summary: 'The RBI announced the issuance of FEMA (Authorised Persons) Regulations, 2026, notified vide FEMA 401/2026-RB dated April 30, 2026, superseding all prior regulations governing Authorised Dealers, FFMCs, and Restricted Money Changers. The new framework introduces revised authorization procedures, enhanced AML/KYC obligations, and updated reporting mandates.',
+    importance: 'This is a foundational FEMA regulatory overhaul — the first comprehensive revision of the Authorised Persons framework in over two decades. Every bank, NBFC, and money changer conducting foreign exchange business in India must review and update their compliance systems to align with the new regulations.',
+    url: 'https://www.rbi.org.in/scripts/BS_PressReleaseDisplay.aspx',
+  },
+  {
+    id: 'pr014',
+    source: 'RBI',
+    category: 'Cross-Border Payments',
+    title: 'RBI Releases Circular on Guidelines to Facilitate Faster Cross-Border Inward Payments',
+    date: 'Apr 09, 2026',
+    refNum: '—',
+    tags: ['Remittances', 'FEMA', 'Trade'],
+    summary: 'The RBI released a circular providing guidelines to facilitate faster processing of cross-border inward payments, mandating authorized dealer banks to streamline internal processes for straight-through processing of SWIFT-based inward remittances and to reduce manual intervention in standard transactions.',
+    importance: 'Faster inward payment processing directly impacts India\'s current account receipts and the timeliness of export realization — a key FEMA compliance metric. For exporters, delayed crediting of proceeds has historically been a source of FEMA non-compliance risk; this circular reduces that risk structurally.',
+    url: 'https://www.rbi.org.in/scripts/BS_PressReleaseDisplay.aspx',
+  },
+  {
+    id: 'pr015',
+    source: 'SEBI',
+    category: 'Board Decision',
+    title: 'Key Decisions Taken in the SEBI Board Meeting Dated 23rd March, 2026',
+    date: 'Mar 23, 2026',
+    refNum: 'PR No. 18/2026',
+    tags: ['FPI', 'AIF', 'SEBI Board'],
+    summary: 'SEBI\'s Board Meeting of March 23, 2026 approved rationalized framework for AIF overseas investment allocations, revised norms for FPI investment in the InvIT/REIT segment, and approval of new product frameworks for foreign investors. The Board also approved changes to the SEBI (FPI) Regulations, 2019 to align them with the SWAGAT-FI framework.',
+    importance: 'SEBI Board Meetings are the apex decision-making events for India\'s securities market regulatory framework. March 2026 Board decisions on FPI regulations and overseas investment by AIFs directly affect the capital account framework under FEMA.',
+    url: 'https://www.sebi.gov.in/media-and-notifications/press-releases/mar-2026/key-decisions-taken-in-the-sebi-board-meeting-dated-23rd-march-2026_91648.html',
+  },
+  {
+    id: 'pr016',
+    source: 'RBI',
+    category: 'Trade Relief',
+    title: 'Trade Relief Measures for Exporters',
+    date: 'Mar 31, 2026',
+    refNum: '—',
+    tags: ['Trade', 'Export', 'FEMA'],
+    summary: 'The RBI announced trade relief measures for exporters under FEMA\'s export regulations, providing temporary relaxations on export realization timelines, advance payment conditions, and documentary requirements for exporters affected by trade disruptions. Targeted at sectors facing supply chain delays, shipping bottlenecks, and payment delays from certain geographies.',
+    importance: 'Trade relief measures under FEMA\'s export framework directly affect the compliance obligations of Indian exporters with respect to the mandatory realization and repatriation of export proceeds. Temporary relaxations reduce FEMA penalty exposure for affected exporters.',
+    url: 'https://www.rbi.org.in/scripts/BS_PressReleaseDisplay.aspx',
+  },
+  {
+    id: 'pr017',
+    source: 'RBI',
+    category: 'Bilateral / Reserves',
+    title: 'Renewal of the Bilateral Swap Arrangement between Japan and India',
+    date: 'Mar 02, 2026',
+    refNum: '—',
+    tags: ['Forex Reserves', 'Capital Flows', 'BoP'],
+    summary: 'The RBI announced the renewal of the Bilateral Swap Arrangement (BSA) between the Bank of Japan and the Reserve Bank of India for another term, maintaining the framework under which each central bank can draw up to a specified amount of the other\'s currency in times of balance of payments stress.',
+    importance: 'The Japan-India BSA is a key component of India\'s foreign exchange reserve adequacy framework — it effectively augments India\'s usable external liquidity in a stress scenario. For FEMA and BoP analysis, the BSA renewal is relevant to the adequacy of India\'s external sector buffers and the RBI\'s capacity to manage capital account volatility.',
+    url: 'https://www.rbi.org.in/scripts/BS_PressReleaseDisplay.aspx',
+  },
+  {
+    id: 'pr018',
+    source: 'RBI',
+    category: 'BoP / Data',
+    title: 'Sources of Variation in India\'s Foreign Exchange Reserves during April–December 2025',
+    date: 'Mar 02, 2026',
+    refNum: '—',
+    tags: ['Forex Reserves', 'BoP', 'Capital Flows'],
+    summary: 'The RBI released an analytical report on Sources of Variation in India\'s Foreign Exchange Reserves for April–December 2025, decomposing reserve changes into current account flows, capital account flows, valuation effects, and RBI intervention. The period saw significant FPI outflows and RBI market support.',
+    importance: 'Understanding sources of variation in forex reserves is essential for FEMA capital account policy analysis — it distinguishes between autonomous capital inflows/outflows (FDI, FPI, ECBs) and RBI-driven intervention, providing context for the capital flow pressures that prompted the June 2026 policy response.',
+    url: 'https://www.rbi.org.in/scripts/BS_PressReleaseDisplay.aspx',
+  },
+  {
+    id: 'pr019',
+    source: 'RBI',
+    category: 'BoP / Data',
+    title: 'Developments in India\'s Balance of Payments during Q3 (Oct–Dec) of 2025-26',
+    date: 'Mar 02, 2026',
+    refNum: '—',
+    tags: ['BoP', 'Capital Flows', 'FPI'],
+    summary: 'Q3 FY26 BoP data showed India\'s current account deficit widened to $24.4 billion, driven by a large trade deficit and elevated services imports. The capital account recorded net inflows but insufficient to fully offset the current account gap, contributing to a BoP deficit and reserve drawdown. FPI flows in debt and equity were net negative.',
+    importance: 'The BoP data is the primary macroeconomic input into FEMA capital account policy decisions. The Q3 FY26 widening CAD directly justified the RBI\'s aggressive June 2026 capital inflow measures — making this release a key contextual document for understanding the regulatory rationale for FEMA policy changes.',
+    url: 'https://www.rbi.org.in/scripts/BS_PressReleaseDisplay.aspx',
+  },
+  {
+    id: 'pr020',
+    source: 'RBI',
+    category: 'AML / FATF',
+    title: 'FATF High Risk and Other Monitored Jurisdictions — February 2026 Update',
+    date: 'Mar 09, 2026',
+    refNum: '—',
+    tags: ['AML', 'FATF', 'Compliance'],
+    summary: 'The RBI disseminated the FATF\'s February 2026 update on High Risk and Other Monitored Jurisdictions, requiring all Authorised Dealers and Regulated Entities to update their AML/KYC systems to reflect revised jurisdiction classifications. The update reflects changes to the list of countries under increased monitoring.',
+    importance: 'FATF jurisdiction updates are directly operative for FEMA-regulated foreign exchange transactions — AD banks must apply enhanced due diligence on all transactions involving FATF-monitored jurisdictions. Changes affect the compliance burden and risk profiling of cross-border capital flows.',
+    url: 'https://www.rbi.org.in/scripts/BS_PressReleaseDisplay.aspx',
+  },
+  {
+    id: 'pr021',
+    source: 'RBI',
+    category: 'Authorised Persons',
+    title: 'RBI Releases Draft Directions on Foreign Exchange Dealings of Authorised Persons',
+    date: 'Feb 17, 2026',
+    refNum: '—',
+    tags: ['Authorised Dealer', 'FEMA', 'Forex Market'],
+    summary: 'The RBI released draft Directions on Foreign Exchange Dealings of Authorised Persons for public comment, proposing a comprehensive update to the operational guidelines governing how Authorised Dealers conduct foreign exchange transactions — covering permissible dealing activities, position limits, reporting requirements, and inter-bank market conduct norms.',
+    importance: 'The Directions on Foreign Exchange Dealings of Authorised Persons govern day-to-day forex market operations of all Category-I AD banks — the backbone of India\'s foreign exchange market. Changes to permissible dealing activities and position limits directly affect USD/INR market liquidity and hedging availability for FEMA-regulated entities.',
+    url: 'https://www.rbi.org.in/scripts/BS_PressReleaseDisplay.aspx',
+  },
+  {
+    id: 'pr022',
+    source: 'RBI',
+    category: 'Borrowing & Lending',
+    title: 'Foreign Exchange Management (Borrowing and Lending) (First Amendment) Regulations, 2026',
+    date: 'Feb 16, 2026',
+    refNum: '—',
+    tags: ['ECB', 'Borrowing & Lending', 'FEMA'],
+    summary: 'The RBI notified the FEMA (Borrowing and Lending) (First Amendment) Regulations, 2026, amending the FEMA 3(R)/2018-RB framework governing cross-border borrowing and lending. The amendment updated provisions applicable to ECBs, Trade Credits, and Rupee-denominated borrowings by Indian entities from non-residents.',
+    importance: 'The FEMA Borrowing and Lending Regulations are the governing framework for all ECB transactions — one of the most significant capital flow channels into India. Amendments to this framework directly affect compliance requirements for Indian corporates, PSUs, and financial institutions accessing foreign capital markets.',
+    url: 'https://www.rbi.org.in/scripts/BS_PressReleaseDisplay.aspx',
+  },
+  {
+    id: 'pr023',
+    source: 'RBI',
+    category: 'Forex Swap',
+    title: 'Result of the USD/INR Buy/Sell Swap Auction, February 4, 2026',
+    date: 'Feb 04, 2026',
+    refNum: '—',
+    tags: ['Forex Market', 'Hedging', 'ECB'],
+    summary: 'The RBI published the results of its USD/INR Buy/Sell Swap Auction held on February 4, 2026, during the rupee\'s recovery from a sharp depreciation episode. The auction involved banks offering US dollars to the RBI in exchange for rupee liquidity with a forward repurchase commitment — one of the earlier large-scale swap interventions in the FY26 liquidity management cycle.',
+    importance: 'The February 2026 swap auction was a precursor to the sustained USD/INR intervention programme that culminated in the June 2026 policy package. It establishes the pattern of RBI\'s use of swap-based instruments as a capital-flow and exchange-rate management tool under FEMA\'s framework.',
+    url: 'https://www.rbi.org.in/scripts/BS_PressReleaseDisplay.aspx',
+  },
+  {
+    id: 'pr024',
+    source: 'RBI',
+    category: 'FEDAI / SRO',
+    title: 'Recognition of FEDAI as Self-Regulatory Organisation (SRO) for Authorised Dealers',
+    date: 'Jan 14, 2026',
+    refNum: '—',
+    tags: ['Authorised Dealer', 'Forex Market', 'FEMA'],
+    summary: 'The RBI granted formal recognition to the Foreign Exchange Dealers\' Association of India (FEDAI) as a Self-Regulatory Organisation (SRO) for Authorised Dealers dealing in foreign exchange. FEDAI\'s SRO status formalizes its role in setting market conventions, resolving forex market disputes, and issuing operational guidelines to member banks on FEMA-compliant foreign exchange dealing.',
+    importance: 'FEDAI\'s formal SRO status is a structural governance reform for India\'s foreign exchange market. As the body setting interbank USD/INR dealing conventions and trade practices, its SRO recognition strengthens the regulatory architecture governing the entities through which FEMA-regulated forex transactions are executed.',
+    url: 'https://www.rbi.org.in/scripts/BS_PressReleaseDisplay.aspx',
+  },
+  {
+    id: 'pr025',
+    source: 'RBI',
+    category: 'Authorised Persons',
+    title: 'RBI Invites Public Comments on Draft Amendment Directions on Net Open Position',
+    date: 'Jan 14, 2026',
+    refNum: '—',
+    tags: ['Forex Market', 'Authorised Dealer', 'Hedging'],
+    summary: 'The RBI published draft Amendment Directions for public comment proposing revisions to the Net Open Position (NOP) framework applicable to Authorised Dealer banks, including revised NOP limits, updated methodology for computing banks\' foreign currency exposure, and changes to the treatment of off-balance-sheet forex positions including derivatives.',
+    importance: 'The NOP framework directly governs how much foreign exchange risk banks can hold, shaping the depth and liquidity of the USD/INR market. Revisions to NOP limits affect banks\' capacity to provide hedging solutions to FEMA-regulated entities (importers, ECB borrowers, FPIs).',
+    url: 'https://www.rbi.org.in/scripts/BS_PressReleaseDisplay.aspx',
+  },
+  {
+    id: 'pr026',
+    source: 'RBI',
+    category: 'Export & Import',
+    title: 'Foreign Exchange Management (Export and Import of Goods and Services) Regulations, 2026 — and Directions',
+    date: 'Jan 16, 2026',
+    refNum: '—',
+    tags: ['Trade', 'Export', 'FEMA'],
+    summary: 'The RBI issued comprehensive new FEMA (Export and Import of Goods and Services) Regulations, 2026, along with accompanying Directions, replacing the prior FEMA 23(R)/2015-RB framework. The new regulations adopt a principle-based approach, consolidating all prior circulars and master directions on trade-related foreign exchange into a single operative document.',
+    importance: 'This is the primary FEMA regulation governing all cross-border trade in goods and services — one of the highest-volume foreign exchange transaction categories. The principle-based overhaul directly affects every Indian exporter and importer\'s FEMA compliance obligations.',
+    url: 'https://www.rbi.org.in/scripts/BS_PressReleaseDisplay.aspx',
+  },
+  {
+    id: 'pr027',
+    source: 'SEBI',
+    category: 'FPI Regulation',
+    title: 'SEBI Says SWAGAT to FPIs and FVCIs',
+    date: 'Jan 16, 2026',
+    refNum: 'PR No. 8/2026',
+    tags: ['FPI', 'FVCI', 'KYC'],
+    summary: 'SEBI announced the SWAGAT (Single Window Automatic & Generalised Access for Trusted) framework for FPIs and FVCIs, enabling eligible trusted foreign investors — including regulated pension funds, sovereign wealth funds, and government-owned entities — to obtain combined FPI and FVCI registration through a single application, with 10-year validity and simplified KYC review cycles.',
+    importance: 'The SWAGAT framework is the most significant SEBI reform for foreign capital onboarding since the FPI consolidation of 2019. It directly reduces compliance cost and time for major institutional foreign investors to access Indian capital markets, with direct implications for the quantum and quality of FPI-mediated capital inflows — a core FEMA capital account flow channel.',
+    url: 'https://www.sebi.gov.in/media-and-notifications/press-releases/jan-2026/sebi-says-swagat-to-fpis-and-fvcis_90135.html',
+  },
+  {
+    id: 'pr028',
+    source: 'RBI',
+    category: 'Guarantees',
+    title: 'Issuance of Foreign Exchange Management (Guarantees) Regulations, 2026',
+    date: 'Jan 12, 2026',
+    refNum: 'FEMA 23(R)/2026-RB',
+    tags: ['Guarantees', 'FEMA', 'FDI'],
+    summary: 'The RBI announced the issuance of FEMA (Guarantees) Regulations, 2026, superseding FEMA 8/2000-RB. The new regulations provide clearer definitions and role-based permissions for guarantees issued by residents in favour of non-residents and vice versa, with rationalized conditions for financial and performance guarantees.',
+    importance: 'Cross-border guarantees are a high-frequency FEMA transaction type for corporates involved in trade finance, project financing, and group-company structures. The revised regulations reduce ambiguity around permissible guarantee structures and align them with FEMA\'s Overseas Investment Rules, 2022.',
+    url: 'https://www.rbi.org.in/scripts/BS_PressReleaseDisplay.aspx',
+  },
+  {
+    id: 'pr029',
+    source: 'SEBI',
+    category: 'FPI Regulation',
+    title: 'SEBI Facilitates Seamless Digital Signature Certificate Functionality for FPIs',
+    date: 'Jan 08, 2026',
+    refNum: 'PR No. 3/2026',
+    tags: ['FPI', 'Onboarding', 'KYC'],
+    summary: 'SEBI announced the introduction of seamless Digital Signature Certificate (DSC) functionality for Foreign Portfolio Investors filing documents with SEBI and NSDL/CDSL, eliminating the prior requirement for physical document submission or manual notarization for routine filings such as account maintenance, change-of-information filings, and compliance declarations.',
+    importance: 'Operational frictions in FPI registration and compliance are a documented deterrent to foreign capital inflows into Indian markets. Seamless DSC functionality for FPIs is an ease-of-market-access measure that contributes materially to SEBI\'s goal of increasing the attractiveness of India as a destination for cross-border portfolio investment under FEMA.',
+    url: 'https://www.sebi.gov.in/media-and-notifications/press-releases/jan-2026/sebi-facilitates-seamless-digital-signature-certificate-functionality-for-fpis_89931.html',
+  },
+  {
+    id: 'pr030',
+    source: 'RBI',
+    category: 'Forex Swap',
+    title: 'RBI to Inject Liquidity Through Long-Term USD/INR Buy/Sell Swap Auction (January 2026)',
+    date: 'Jan 27, 2026',
+    refNum: '—',
+    tags: ['Forex Market', 'Hedging', 'ECB'],
+    summary: 'The RBI announced a long-term USD/INR Buy/Sell Swap auction in January 2026 to inject durable rupee liquidity, consistent with its accommodative monetary policy stance. The January swap was a longer-tenor instrument compared to earlier short-term swaps, aimed at providing multi-month liquidity support while managing the RBI\'s foreign exchange reserves exposure.',
+    importance: 'Long-term USD/INR swaps affect the forward premium curve used for FEMA-regulated ECB hedging, the effective cost of FCNR(B) deposit mobilization, and banks\' net open position (NOP) calculations under RBI\'s foreign exchange risk framework.',
+    url: 'https://www.rbi.org.in/scripts/BS_PressReleaseDisplay.aspx',
+  },
+  {
+    id: 'pr031',
+    source: 'RBI',
+    category: 'ODI / Data',
+    title: 'Overseas Direct Investment for April 2026',
+    date: 'May 21, 2026',
+    refNum: '—',
+    tags: ['ODI', 'FDI', 'Capital Flows'],
+    summary: 'The RBI released its monthly Overseas Direct Investment (ODI) data for April 2026, covering equity, loan, and guarantee commitments made by Indian residents to overseas entities. The data coincided with RBI\'s scrutiny of potential misuse of the ODI route by family offices and corporates for wealth management purposes.',
+    importance: 'Monthly ODI data is the primary official measure of India\'s outward capital account flows under FEMA. It is directly relevant to the RBI\'s concurrent enforcement scrutiny of ODI transactions and provides context for whether outbound flows are within normal ranges or showing anomalies.',
+    url: 'https://www.rbi.org.in/scripts/BS_PressReleaseDisplay.aspx',
+  },
+  {
+    id: 'pr032',
+    source: 'RBI',
+    category: 'Forex Swap',
+    title: 'Result of the USD/INR Buy/Sell Swap Auction, May 26, 2026',
+    date: 'May 26, 2026',
+    refNum: '—',
+    tags: ['Forex Market', 'Hedging'],
+    summary: 'The RBI published the results of the USD/INR Buy/Sell Swap Auction conducted on May 26, 2026, disclosing the total notional amount swapped, the cut-off rate, and the settlement details. This auction was part of the RBI\'s sustained foreign exchange market intervention strategy to defend the rupee and manage rupee liquidity simultaneously.',
+    importance: 'The auction result confirms the quantum of RBI\'s forward-market intervention and directly affects the USD/INR forward premium — a critical benchmark for hedging costs under FEMA\'s mandatory hedging requirements for ECBs and a key data point for FEMA compliance practitioners.',
+    url: 'https://www.rbi.org.in/scripts/BS_PressReleaseDisplay.aspx',
+  },
+  {
+    id: 'pr033',
+    source: 'SEBI',
+    category: 'Investor Protection',
+    title: 'Advisory Against Investment in Fraudulent Trading Schemes Claiming to be Offered by FPIs',
+    date: 'Aug 22, 2025',
+    refNum: 'PR No. 53/2025',
+    tags: ['FPI', 'Enforcement', 'AML'],
+    summary: 'SEBI issued a public advisory warning Indian residents against fraudulent investment schemes falsely claiming to be offered by registered FPIs. SEBI noted that FPIs do not directly solicit investments from Indian retail investors and any such solicitation is unauthorized. SEBI directed all exchanges, depositories, and intermediaries to disseminate the advisory widely.',
+    importance: 'This advisory highlights the intersection of SEBI\'s FPI regulatory framework and retail investor protection. Fraudulent FPI-impersonation schemes exploit the credibility of the FEMA/SEBI-regulated FPI route and can result in unregistered foreign exchange transactions in violation of FEMA.',
+    url: 'https://www.sebi.gov.in/media-and-notifications/press-releases/aug-2025/advisory-against-investment-in-fraudulent-trading-schemes-claiming-to-be-offered-to-indian-residents-by-fpis_87053.html',
+  },
+];
+
+// ═══════════════════════════════════════════════════════
+// PRESS ITEMS RENDERING
+// ═══════════════════════════════════════════════════════
+
+function sourcePressClass(source) {
+  if (source === 'RBI') return 'source-rbi';
+  if (source === 'SEBI') return 'source-sebi';
+  return 'source-rbi';
+}
+
+function getFilteredPressItems() {
+  const q = (document.getElementById('press-search') ? document.getElementById('press-search').value : '').toLowerCase();
+  const sourceF = document.getElementById('press-source-filter') ? document.getElementById('press-source-filter').value : 'all';
+  const catF = document.getElementById('press-category-filter') ? document.getElementById('press-category-filter').value : 'all';
+  // Sort reverse chronological (already sorted in array, but let's ensure by parsing date)
+  const parseDate = s => {
+    const months = {Jan:0,Feb:1,Mar:2,Apr:3,May:4,Jun:5,Jul:6,Aug:7,Sep:8,Oct:9,Nov:10,Dec:11};
+    const parts = s.split(' ');
+    if (parts.length === 3) return new Date(parseInt(parts[2]), months[parts[0].slice(0,3)] ?? 0, parseInt(parts[1].replace(',','')));
+    return new Date(0);
+  };
+  const sorted = [...PRESS_ITEMS].sort((a,b) => parseDate(b.date) - parseDate(a.date));
+  return sorted.filter(item => {
+    const allText = (item.title + ' ' + item.summary + ' ' + item.importance + ' ' + item.tags.join(' ') + ' ' + item.category).toLowerCase();
+    const matchSearch = !q || allText.includes(q);
+    const matchSource = sourceF === 'all' || item.source === sourceF;
+    const matchCat = catF === 'all' || item.category === catF;
+    return matchSearch && matchSource && matchCat;
+  });
+}
+
+function renderPressItems() {
+  const container = document.getElementById('press-container');
+  const noResults = document.getElementById('press-no-results');
+  if (!container) return;
+  const filtered = getFilteredPressItems();
+  container.innerHTML = '';
+  if (filtered.length === 0) {
+    noResults && noResults.classList.remove('hidden');
+    return;
+  }
+  noResults && noResults.classList.add('hidden');
+  filtered.forEach(item => appendPressCard(item, container));
+}
+
+function appendPressCard(item, container) {
+  const tagHtml = item.tags.slice(0, 4).map(t =>
+    '<span class="tag-pill px-2 py-0.5 rounded-md font-medium text-xs">' + t + '</span>'
+  ).join('') + (item.tags.length > 4 ? '<span class="text-xs" style="color:#94A3B8;">+' + (item.tags.length - 4) + '</span>' : '');
+
+  const refHtml = item.refNum && item.refNum !== '—'
+    ? '<span class="text-xs px-2 py-0.5 rounded-md font-mono" style="background:#FEF3C7;color:#92400E;border:1px solid #FDE68A;">' + item.refNum + '</span>'
+    : '';
+
+  const sourceClass = sourcePressClass(item.source);
+
+  const div = document.createElement('div');
+  div.className = 'card bg-white rounded-xl border p-4';
+  div.style.borderColor = '#E2E8F0';
+  div.innerHTML =
+    '<div class="flex items-start justify-between gap-3 mb-2.5">' +
+      '<div class="flex items-center gap-2 flex-wrap">' +
+        '<span class="' + sourceClass + ' text-xs font-semibold px-2.5 py-1 rounded-md">' + item.source + '</span>' +
+        '<span class="text-xs px-2 py-0.5 rounded-md font-medium" style="background:#F1F5F9;color:#475569;border:1px solid #E2E8F0;">' + item.category + '</span>' +
+        '<span class="text-xs px-2 py-0.5 rounded-md font-medium" style="background:#F0FDFA;color:#0D9488;border:1px solid #CCFBF1;">Press Release</span>' +
+        refHtml +
+      '</div>' +
+      '<span class="text-xs flex-shrink-0" style="color:#94A3B8;font-family:\'DM Mono\',monospace;">' + item.date + '</span>' +
+    '</div>' +
+    '<h3 class="text-sm font-semibold leading-snug mb-1.5" style="color:#0F172A;font-family:\'Fraunces\',serif;">' + item.title + '</h3>' +
+    '<p class="text-xs leading-relaxed mb-2" style="color:#475569;">' + item.summary + '</p>' +
+    '<div class="text-xs leading-relaxed mb-3 px-3 py-2 rounded-lg" style="background:#F8FAFC;color:#64748B;border-left:2px solid #0D9488;">' +
+      '<span class="font-semibold" style="color:#0F172A;">Why It Matters: </span>' + item.importance +
+    '</div>' +
+    '<div class="flex items-center gap-1.5 mb-3 flex-wrap">' + tagHtml + '</div>' +
+    '<div class="flex items-center gap-2 pt-3 border-t" style="border-color:#F1F5F9;">' +
+      '<a href="' + item.url + '" target="_blank" class="ai-explain-btn flex items-center gap-1.5 text-xs font-semibold text-white px-3 py-1.5 rounded-lg" style="text-decoration:none;">↗ Source</a>' +
+    '</div>';
+  container.appendChild(div);
+}
+
+
+// STATE
+let savedIds = new Set();
+let activeFilter = 'all';
+let searchQuery = '';
+let currentView = 'dashboard';
+let notifPage = 0;
+const NOTIF_PAGE_SIZE = 20;
+
+// UTILS
+function statusBadge(status) {
+  if (status === 'active' || status === 'Active') return '<span class="status-active text-xs px-2.5 py-0.5 rounded-full font-semibold">🟢 Active</span>';
+  if (status === 'Superseded' || status === 'superseded') return '<span class="status-superseded text-xs px-2.5 py-0.5 rounded-full font-semibold">🔴 Superseded</span>';
+  return '<span class="status-consolidated text-xs px-2.5 py-0.5 rounded-full font-semibold">🔵 Consolidated</span>';
+}
+
+function themeToTag(theme) {
+  const map = { 'I. FDI': 'FDI', 'II. FPI': 'FPI', 'III. ECB': 'ECB', 'IV. Remittances and Capital Flight': 'Remittances', 'V. Derivatives and Market Infrastructure': 'Derivatives', 'VI. Systemic Risk': 'Systemic Risk' };
+  return map[theme] || theme;
+}
+
+// DASHBOARD CARDS
+function renderCard(card, container, prepend = false) {
+  const isSaved = savedIds.has(card.id);
+  const tagHtml = card.tags.map(t => '<span class="tag-pill px-2 py-0.5 rounded-md font-medium">' + t + '</span>').join('');
+  const div = document.createElement('div');
+  div.id = 'card-' + card.id;
+  div.className = 'card bg-white rounded-xl border p-4';
+  div.style.borderColor = '#E2E8F0';
+  div.innerHTML = '<div class="flex items-start justify-between gap-3 mb-3"><div class="flex items-center gap-2 flex-wrap"><span class="source-rbi text-xs font-semibold px-2.5 py-1 rounded-md">' + card.source + '</span><span class="text-xs px-2 py-0.5 rounded-md font-medium" style="background:#F1F5F9;color:#475569;border:1px solid #E2E8F0;">' + card.category + '</span>' + statusBadge(card.status) + '</div><button class="save-btn flex-shrink-0 w-7 h-7 rounded-md flex items-center justify-center transition-all hover:bg-slate-100 ' + (isSaved ? 'saved' : '') + '" onclick="toggleSave(' + card.id + ', this)" title="' + (isSaved ? 'Unsave' : 'Save') + '"><svg class="w-4 h-4 transition-all" fill="' + (isSaved ? '#F59E0B' : 'none') + '" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" style="color:' + (isSaved ? '#F59E0B' : '#94A3B8') + '"><path stroke-linecap="round" stroke-linejoin="round" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/></svg></button></div><h3 class="text-sm font-semibold leading-snug mb-0.5" style="color:#0F172A; font-family:\'Fraunces\',serif;">' + card.title + '</h3><div class="text-xs mb-2.5" style="color:#94A3B8; font-family:\'DM Mono\',monospace;">' + card.subtitle + ' &middot; ' + card.date + '</div><p class="text-xs leading-relaxed mb-3" style="color:#475569;">' + card.summary + '</p><div class="flex items-center gap-1.5 mb-3 flex-wrap">' + tagHtml + '</div><div class="flex items-center gap-2 pt-3 border-t" style="border-color:#F1F5F9;"><button class="ai-explain-btn flex items-center gap-1.5 text-xs font-semibold text-white px-3 py-1.5 rounded-lg" onclick="openDrawer(' + card.id + ')"><span>✨</span> AI Explain</button><button class="text-xs font-medium px-3 py-1.5 rounded-lg border transition-all hover:border-teal-600 hover:text-teal-600 ml-auto" style="border-color:#E2E8F0; color:#64748B;">Source →</button></div>';
+  if (prepend && container.firstChild) container.insertBefore(div, container.firstChild);
+  else container.appendChild(div);
+}
+
+function getFilteredCards() {
+  return CARDS.filter(c => {
+    const q = searchQuery.toLowerCase();
+    const allText = (c.title + c.summary + c.tags.join(' ') + c.category).toLowerCase();
+    const matchesSearch = !q || allText.includes(q);
+    let matchesFilter = false;
+    if (activeFilter === 'all') matchesFilter = true;
+    else if (activeFilter === 'Active') matchesFilter = c.status === 'active';
+    else if (activeFilter === 'Superseded') matchesFilter = c.status === 'superseded';
+    else matchesFilter = c.tags.some(t => t.toLowerCase().includes(activeFilter.toLowerCase())) || c.category.toLowerCase().includes(activeFilter.toLowerCase());
+    return matchesFilter && matchesSearch;
+  });
+}
+
+function renderAllCards() {
+  const container = document.getElementById('cards-container');
+  container.innerHTML = '';
+  const filtered = getFilteredCards();
+  filtered.forEach(c => renderCard(c, container));
+  document.getElementById('card-count').textContent = 'Showing ' + filtered.length + ' of ' + CARDS.length;
+  document.getElementById('no-results').classList.toggle('hidden', filtered.length > 0);
+}
+
+function setFilter(btn) {
+  document.querySelectorAll('.filter-chip').forEach(c => {
+    c.classList.remove('active');
+    c.style.background = '';
+    c.style.borderColor = '#E2E8F0';
+    c.style.color = '#475569';
+  });
+  btn.classList.add('active');
+  btn.style.background = '#0D9488';
+  btn.style.borderColor = '#0D9488';
+  btn.style.color = 'white';
+  activeFilter = btn.dataset.filter;
+  renderAllCards();
+}
+
+function filterCards() {
+  searchQuery = document.getElementById('search-input').value;
+  renderAllCards();
+}
+
+// NOTIFICATIONS
+function getFilteredNotifications() {
+  const q = (document.getElementById('notif-search') ? document.getElementById('notif-search').value : '').toLowerCase();
+  const statusF = document.getElementById('notif-status-filter') ? document.getElementById('notif-status-filter').value : 'all';
+  const themeF = document.getElementById('notif-theme-filter') ? document.getElementById('notif-theme-filter').value : 'all';
+  return NOTIFICATIONS.filter(n => {
+    const matchSearch = !q || n.title.toLowerCase().includes(q) || n.subTheme.toLowerCase().includes(q) || n.theme.toLowerCase().includes(q);
+    const matchStatus = statusF === 'all' || n.status === statusF;
+    const matchTheme = themeF === 'all' || n.theme === themeF;
+    return matchSearch && matchStatus && matchTheme;
+  });
+}
+
+function renderNotifications() {
+  notifPage = 0;
+  const container = document.getElementById('notifications-container');
+  container.innerHTML = '';
+  const filtered = getFilteredNotifications();
+  filtered.slice(0, NOTIF_PAGE_SIZE).forEach(n => appendNotifCard(n, container));
+  document.getElementById('notif-load-more').classList.toggle('hidden', filtered.length <= NOTIF_PAGE_SIZE);
+  notifPage = 1;
+}
+
+function loadMoreNotifications() {
+  const container = document.getElementById('notifications-container');
+  const filtered = getFilteredNotifications();
+  const start = notifPage * NOTIF_PAGE_SIZE;
+  filtered.slice(start, start + NOTIF_PAGE_SIZE).forEach(n => appendNotifCard(n, container));
+  notifPage++;
+  document.getElementById('notif-load-more').classList.toggle('hidden', notifPage * NOTIF_PAGE_SIZE >= filtered.length);
+}
+
+function appendNotifCard(n, container) {
+  const dotColor = n.status === 'Active' ? '#0D9488' : n.status === 'Superseded' ? '#EF4444' : '#3B82F6';
+  const div = document.createElement('div');
+  div.className = 'bg-white rounded-xl p-4 border';
+  div.style.borderColor = '#E2E8F0';
+  div.innerHTML = '<div class="flex items-start gap-3"><div class="mt-1 w-2 h-2 rounded-full flex-shrink-0" style="background:' + dotColor + ';"></div><div class="flex-1 min-w-0"><div class="flex items-start gap-2 flex-wrap mb-1"><span class="text-xs font-semibold" style="color:#0F172A;">' + n.title + '</span></div><div class="flex items-center gap-2 flex-wrap"><span class="text-xs px-2 py-0.5 rounded-md font-medium tag-pill">' + themeToTag(n.theme) + '</span><span class="text-xs px-2 py-0.5 rounded-md font-medium tag-pill">' + n.subTheme + '</span>' + statusBadge(n.status) + '</div></div><span class="text-xs flex-shrink-0 font-mono" style="color:#94A3B8; white-space:nowrap;">' + n.date + '</span></div>';
+  container.appendChild(div);
+}
+
+// MASTER DIRECTIONS TABLE
+function renderMasterDirections(list) {
+  const tbody = document.getElementById('md-table-body');
+  tbody.innerHTML = '';
+  list.forEach(md => {
+    const tagsHtml = md.tags.map(t => '<span class="tag-pill px-2 py-0.5 rounded-md font-medium text-xs mr-1">' + t + '</span>').join('');
+    const tr = document.createElement('tr');
+    tr.className = 'md-table-row border-t';
+    tr.style.borderColor = '#F1F5F9';
+    tr.innerHTML = '<td class="px-4 py-3" style="color:#0F172A; font-family:\'Fraunces\',serif; font-size:0.75rem; max-width:280px;"><div class="font-semibold leading-snug">' + md.title + '</div>' + (md.refNum ? '<div class="text-xs mt-0.5 font-mono" style="color:#94A3B8;">' + md.refNum + '</div>' : '') + '<div class="flex flex-wrap gap-1 mt-1.5">' + tagsHtml + '</div></td><td class="px-4 py-3 font-mono text-xs" style="color:#64748B; white-space:nowrap;">' + md.published + '</td><td class="px-4 py-3 font-mono text-xs" style="color:#64748B; white-space:nowrap;">' + md.lastUpdated + '</td><td class="px-4 py-3 text-xs" style="color:#64748B; max-width:140px;">' + md.addressee + '</td><td class="px-4 py-3 text-xs" style="color:#475569; max-width:200px;">' + md.coverage + '</td>';
+    tbody.appendChild(tr);
+  });
+}
+
+function filterMasterDirections() {
+  const q = (document.getElementById('md-search') ? document.getElementById('md-search').value : '').toLowerCase();
+  const filtered = q ? MASTER_DIRECTIONS.filter(md => md.title.toLowerCase().includes(q) || md.coverage.toLowerCase().includes(q) || md.tags.some(t => t.toLowerCase().includes(q))) : MASTER_DIRECTIONS;
+  renderMasterDirections(filtered);
+}
+
+// SAVE
+function toggleSave(id, btn) {
+  if (savedIds.has(id)) {
+    savedIds.delete(id);
+    btn.classList.remove('saved');
+    btn.querySelector('svg').setAttribute('fill', 'none');
+    btn.querySelector('svg').style.color = '#94A3B8';
+  } else {
+    savedIds.add(id);
+    btn.classList.add('saved');
+    btn.querySelector('svg').setAttribute('fill', '#F59E0B');
+    btn.querySelector('svg').style.color = '#F59E0B';
+  }
+  updateSavedBadge();
+  if (currentView === 'saved') renderSavedView();
+}
+
+function updateSavedBadge() {
+  const badge = document.getElementById('saved-badge');
+  const n = savedIds.size;
+  badge.textContent = n;
+  badge.classList.toggle('hidden', n === 0);
+}
+
+function renderSavedView() {
+  const container = document.getElementById('saved-cards-container');
+  container.innerHTML = '';
+  const empty = document.getElementById('saved-empty');
+  const savedCards = CARDS.filter(c => savedIds.has(c.id));
+  if (savedCards.length === 0) { empty.classList.remove('hidden'); }
+  else { empty.classList.add('hidden'); savedCards.forEach(c => renderCard(c, container)); }
+}
+
+// NAVIGATION
+function switchView(view) {
+  currentView = view;
+  document.querySelectorAll('[id^="view-"]').forEach(v => v.classList.add('hidden'));
+  const target = document.getElementById('view-' + view);
+  if (target) target.classList.remove('hidden');
+  document.querySelectorAll('.sidebar-nav-item').forEach(n => {
+    n.classList.remove('active');
+    n.style.borderLeft = '';
+    const label = n.querySelector('.nav-label');
+    const icon = n.querySelector('.nav-icon');
+    if (label) label.style.color = 'rgba(255,255,255,0.55)';
+    if (icon) icon.style.color = 'rgba(255,255,255,0.45)';
+  });
+  const activeNav = document.getElementById('nav-' + view);
+  if (activeNav) {
+    activeNav.classList.add('active');
+    activeNav.style.borderLeft = '2px solid #0D9488';
+    const label = activeNav.querySelector('.nav-label');
+    const icon = activeNav.querySelector('.nav-icon');
+    if (label) label.style.color = '#2DD4BF';
+    if (icon) icon.style.color = '#2DD4BF';
+  }
+  if (view === 'saved') renderSavedView();
+  if (view === 'notifications') renderNotifications();
+  if (view === 'master-directions') renderMasterDirections(MASTER_DIRECTIONS);
+}
+
+// DRAWER
+function openDrawer(id) {
+  const card = CARDS.find(c => c.id === id);
+  if (!card) return;
+  document.getElementById('drawer-title').textContent = card.title + ' ' + card.subtitle;
+  document.getElementById('drawer-date').textContent = card.date + ' · ' + card.source;
+  document.getElementById('drawer-theme').textContent = 'Category: ' + card.category;
+  document.getElementById('drawer-status-badge').textContent = card.status === 'active' ? '🟢 Active' : '🔵 Consolidated';
+  document.getElementById('drawer-status-badge').className = 'inline-flex items-center text-xs font-semibold px-2.5 py-1 rounded-md mb-2 ml-2 ' + (card.status === 'active' ? 'status-active' : 'status-consolidated');
+  document.getElementById('drawer-plain').textContent = card.ai.plain;
+  document.getElementById('drawer-affected').innerHTML = card.ai.affected.map(a => '<li class="flex items-start gap-2"><span class="mt-1 flex-shrink-0" style="color:#EA580C;">•</span><span>' + a + '</span></li>').join('');
+  document.getElementById('drawer-legal').innerHTML = card.ai.legal.map(l => '<li class="flex items-start gap-2"><span class="mt-1 flex-shrink-0" style="color:#1D4ED8;">•</span><span>' + l + '</span></li>').join('');
+  document.getElementById('drawer-ai-content').classList.remove('hidden');
+  document.getElementById('drawer-generating').classList.add('hidden');
+  document.getElementById('drawer-url').textContent = '';
+  document.getElementById('drawer-overlay').classList.remove('hidden');
+  const panel = document.getElementById('drawer-panel');
+  panel.classList.remove('hidden-drawer');
+  panel.classList.add('visible-drawer');
+  panel.style.display = 'block';
+  document.body.style.overflow = 'hidden';
+}
+
+function closeDrawer() {
+  const panel = document.getElementById('drawer-panel');
+  panel.classList.remove('visible-drawer');
+  panel.classList.add('hidden-drawer');
+  document.getElementById('drawer-overlay').classList.add('hidden');
+  document.body.style.overflow = '';
+}
+
+// ALERT
+function dismissAlert() {
+  document.getElementById('alert-banner').classList.add('hidden');
+}
+
+// CLOCK
+function updateClock() {
+  const now = new Date();
+  document.getElementById('sync-time').textContent = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
+}
+updateClock();
+setInterval(updateClock, 30000);
+
+// INIT
+renderAllCards();
+renderPressItems();
+</script>
+</body>
+</html>
