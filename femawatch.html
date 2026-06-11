@@ -131,6 +131,120 @@
 
     .md-table-row { transition: background 0.15s; }
     .md-table-row:hover { background: #F8FAFC; }
+
+    /* ── DATE RANGE SLIDER ── */
+    .date-range-popover {
+      position: absolute;
+      top: calc(100% + 8px);
+      right: 0;
+      width: 320px;
+      background: white;
+      border: 1px solid #E2E8F0;
+      border-radius: 14px;
+      box-shadow: 0 8px 32px rgba(15,23,42,0.14);
+      z-index: 200;
+      padding: 20px 20px 16px;
+      animation: fadeIn 0.18s ease-out;
+    }
+    .range-track-wrap {
+      position: relative;
+      height: 6px;
+      margin: 28px 0 10px;
+    }
+    .range-track-bg {
+      position: absolute;
+      inset: 0;
+      background: #E2E8F0;
+      border-radius: 99px;
+    }
+    .range-track-fill {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      background: linear-gradient(90deg, #0D9488, #0891b2);
+      border-radius: 99px;
+      pointer-events: none;
+    }
+    .range-input {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 100%;
+      height: 6px;
+      background: transparent;
+      -webkit-appearance: none;
+      appearance: none;
+      pointer-events: none;
+      margin: 0;
+    }
+    .range-input::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: white;
+      border: 2.5px solid #0D9488;
+      box-shadow: 0 2px 8px rgba(13,148,136,0.3);
+      cursor: pointer;
+      pointer-events: all;
+      transition: box-shadow 0.15s, border-color 0.15s;
+    }
+    .range-input::-webkit-slider-thumb:hover {
+      box-shadow: 0 2px 14px rgba(13,148,136,0.45);
+      border-color: #0891b2;
+    }
+    .range-input::-moz-range-thumb {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: white;
+      border: 2.5px solid #0D9488;
+      box-shadow: 0 2px 8px rgba(13,148,136,0.3);
+      cursor: pointer;
+      pointer-events: all;
+    }
+    .range-year-label {
+      position: absolute;
+      top: -22px;
+      font-size: 0.65rem;
+      font-family: 'DM Mono', monospace;
+      font-weight: 500;
+      color: white;
+      background: #0D9488;
+      padding: 2px 6px;
+      border-radius: 5px;
+      transform: translateX(-50%);
+      white-space: nowrap;
+      pointer-events: none;
+    }
+    .range-year-label::after {
+      content: '';
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      border: 4px solid transparent;
+      border-top-color: #0D9488;
+    }
+    .date-chip-btn {
+      position: relative;
+    }
+    .date-chip-btn.active {
+      border-color: #0D9488 !important;
+      color: #0D9488 !important;
+      background: #F0FDFA !important;
+    }
+    .year-tick-row {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 6px;
+    }
+    .year-tick {
+      font-size: 0.6rem;
+      font-family: 'DM Mono', monospace;
+      color: #94A3B8;
+    }
   </style>
 </head>
 <body>
@@ -228,9 +342,55 @@
           </svg>
           <input id="search-input" type="text" placeholder="Search regulations, Master Directions, circulars…" oninput="filterCards()" class="search-input w-full pl-9 pr-4 py-2 text-sm rounded-lg border bg-slate-50 transition-all" style="border-color:#E2E8F0; color:#0F172A; font-family:'IBM Plex Sans',sans-serif;" />
         </div>
-        <div class="flex items-center gap-2 text-xs font-medium px-3 py-2 rounded-lg border cursor-pointer hover:border-teal-600 transition-all" style="border-color:#E2E8F0; color:#475569; background:white;">
-          <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-          2017–2026
+        <!-- DATE RANGE CHIP + POPOVER -->
+        <div class="relative date-chip-btn" id="date-chip-wrap">
+          <button id="date-chip-btn" onclick="toggleDatePopover()" class="flex items-center gap-2 text-xs font-medium px-3 py-2 rounded-lg border cursor-pointer transition-all" style="border-color:#E2E8F0; color:#475569; background:white;">
+            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+            <span id="date-chip-label">2017–2026</span>
+            <svg class="w-3 h-3 ml-0.5 transition-transform" id="date-chip-caret" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+          </button>
+
+          <!-- POPOVER -->
+          <div id="date-range-popover" class="date-range-popover hidden">
+            <div class="flex items-center justify-between mb-1">
+              <span class="text-xs font-semibold" style="color:#0F172A; font-family:'Fraunces',serif;">Filter by Year Range</span>
+              <button onclick="resetDateRange()" class="text-xs px-2 py-0.5 rounded font-medium transition-all hover:bg-slate-100" style="color:#64748B;">Reset</button>
+            </div>
+            <p class="text-xs mb-3" style="color:#94A3B8;">Drag the handles to set start and end year.</p>
+
+            <!-- SLIDER TRACK -->
+            <div class="range-track-wrap">
+              <div class="range-track-bg"></div>
+              <div class="range-track-fill" id="range-fill"></div>
+              <!-- Min label bubble -->
+              <div class="range-year-label" id="range-label-min" style="left:0%;">2017</div>
+              <!-- Max label bubble -->
+              <div class="range-year-label" id="range-label-max" style="left:100%;">2026</div>
+              <!-- Min thumb (lower z on top for proper overlap handling) -->
+              <input type="range" class="range-input" id="range-min"
+                min="2017" max="2026" value="2017" step="1"
+                oninput="onRangeInput()" style="z-index:3;" />
+              <!-- Max thumb -->
+              <input type="range" class="range-input" id="range-max"
+                min="2017" max="2026" value="2026" step="1"
+                oninput="onRangeInput()" style="z-index:4;" />
+            </div>
+
+            <!-- Year ticks -->
+            <div class="year-tick-row">
+              <span class="year-tick">2017</span>
+              <span class="year-tick">2019</span>
+              <span class="year-tick">2021</span>
+              <span class="year-tick">2023</span>
+              <span class="year-tick">2026</span>
+            </div>
+
+            <!-- Summary row -->
+            <div class="flex items-center justify-between mt-4 pt-3 border-t" style="border-color:#F1F5F9;">
+              <div class="text-xs" style="color:#64748B;">Showing items from <span id="range-summary-min" class="font-semibold" style="color:#0D9488;">2017</span> to <span id="range-summary-max" class="font-semibold" style="color:#0D9488;">2026</span></div>
+              <button onclick="applyDateRange()" class="text-xs font-semibold px-3 py-1.5 rounded-lg text-white transition-all" style="background:linear-gradient(135deg,#0D9488,#0891b2);">Apply</button>
+            </div>
+          </div>
         </div>
         <div class="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-semibold flex-shrink-0" style="background: linear-gradient(135deg,#0D9488,#0891b2);">AA</div>
       </div>
@@ -275,7 +435,7 @@
     <!-- NOTIFICATIONS VIEW -->
     <div id="view-notifications" class="view-section hidden flex-1 overflow-y-auto px-6 py-5">
       <div class="flex items-center justify-between mb-4">
-        <h2 class="text-sm font-semibold" style="color:#0F172A; font-family:'Fraunces',serif;">Notifications Feed <span class="ml-1 text-xs font-normal" style="color:#94A3B8; font-family:'DM Mono',monospace;">99 circulars · 2017–2025</span></h2>
+        <h2 class="text-sm font-semibold" style="color:#0F172A; font-family:'Fraunces',serif;">Notifications Feed <span class="ml-1 text-xs font-normal" id="notif-count-label" style="color:#94A3B8; font-family:'DM Mono',monospace;">99 circulars · 2017–2025</span></h2>
         <div class="flex gap-2">
           <input id="notif-search" type="text" placeholder="Search…" oninput="renderNotifications()" class="search-input text-xs px-3 py-1.5 rounded-lg border bg-slate-50" style="border-color:#E2E8F0; width:160px;" />
           <select id="notif-status-filter" onchange="renderNotifications()" class="text-xs px-2 py-1.5 rounded-lg border" style="border-color:#E2E8F0; color:#475569;">
@@ -1796,7 +1956,9 @@ function getFilteredPressItems() {
     const matchSearch = !q || allText.includes(q);
     const matchSource = sourceF === 'all' || item.source === sourceF;
     const matchCat = catF === 'all' || item.category === catF;
-    return matchSearch && matchSource && matchCat;
+    const pressYear = extractYear(item.date);
+    const matchYear = pressYear === 0 || (pressYear >= yearMin && pressYear <= yearMax);
+    return matchSearch && matchSource && matchCat && matchYear;
   });
 }
 
@@ -1858,6 +2020,10 @@ let searchQuery = '';
 let currentView = 'dashboard';
 let notifPage = 0;
 const NOTIF_PAGE_SIZE = 20;
+// Year range state
+let yearMin = 2017;
+let yearMax = 2026;
+let datePopoverOpen = false;
 
 // UTILS
 function statusBadge(status) {
@@ -1884,6 +2050,139 @@ function renderCard(card, container, prepend = false) {
   else container.appendChild(div);
 }
 
+// ═══════════════════════════════════════════════════════
+// DATE RANGE SLIDER
+// ═══════════════════════════════════════════════════════
+function toggleDatePopover() {
+  datePopoverOpen = !datePopoverOpen;
+  const pop = document.getElementById('date-range-popover');
+  const caret = document.getElementById('date-chip-caret');
+  const btn = document.getElementById('date-chip-btn');
+  pop.classList.toggle('hidden', !datePopoverOpen);
+  caret.style.transform = datePopoverOpen ? 'rotate(180deg)' : '';
+  btn.classList.toggle('active', datePopoverOpen || yearMin !== 2017 || yearMax !== 2026);
+  if (datePopoverOpen) updateSliderUI();
+}
+
+function closeDatePopover() {
+  datePopoverOpen = false;
+  const pop = document.getElementById('date-range-popover');
+  const caret = document.getElementById('date-chip-caret');
+  if (pop) pop.classList.add('hidden');
+  if (caret) caret.style.transform = '';
+  updateChipLabel();
+}
+
+function updateSliderUI() {
+  const minEl = document.getElementById('range-min');
+  const maxEl = document.getElementById('range-max');
+  if (!minEl || !maxEl) return;
+  const minVal = parseInt(minEl.value);
+  const maxVal = parseInt(maxEl.value);
+  const totalRange = 2026 - 2017;
+  const minPct = ((minVal - 2017) / totalRange) * 100;
+  const maxPct = ((maxVal - 2017) / totalRange) * 100;
+  // Fill track
+  const fill = document.getElementById('range-fill');
+  if (fill) { fill.style.left = minPct + '%'; fill.style.right = (100 - maxPct) + '%'; }
+  // Bubble labels
+  const lblMin = document.getElementById('range-label-min');
+  const lblMax = document.getElementById('range-label-max');
+  if (lblMin) lblMin.style.left = minPct + '%';
+  if (lblMax) lblMax.style.left = maxPct + '%';
+  if (lblMin) lblMin.textContent = minVal;
+  if (lblMax) lblMax.textContent = maxVal;
+  // Summary text
+  const sumMin = document.getElementById('range-summary-min');
+  const sumMax = document.getElementById('range-summary-max');
+  if (sumMin) sumMin.textContent = minVal;
+  if (sumMax) sumMax.textContent = maxVal;
+  // Ensure thumbs don't cross — boost z-index of the one being dragged toward max
+  minEl.style.zIndex = minVal >= maxVal - 1 ? 5 : 3;
+}
+
+function onRangeInput() {
+  const minEl = document.getElementById('range-min');
+  const maxEl = document.getElementById('range-max');
+  let minVal = parseInt(minEl.value);
+  let maxVal = parseInt(maxEl.value);
+  // Keep handles from crossing
+  if (minVal >= maxVal) {
+    if (document.activeElement === minEl) { minVal = maxVal - 1; minEl.value = minVal; }
+    else { maxVal = minVal + 1; maxEl.value = maxVal; }
+  }
+  updateSliderUI();
+}
+
+function applyDateRange() {
+  const minEl = document.getElementById('range-min');
+  const maxEl = document.getElementById('range-max');
+  yearMin = parseInt(minEl.value);
+  yearMax = parseInt(maxEl.value);
+  closeDatePopover();
+  updateChipLabel();
+  // Re-render everything
+  renderAllCards();
+  if (currentView === 'notifications') renderNotifications();
+  if (currentView === 'press-news') renderPressItems();
+  if (currentView === 'master-directions') filterMasterDirections();
+}
+
+function resetDateRange() {
+  yearMin = 2017;
+  yearMax = 2026;
+  const minEl = document.getElementById('range-min');
+  const maxEl = document.getElementById('range-max');
+  if (minEl) minEl.value = 2017;
+  if (maxEl) maxEl.value = 2026;
+  updateSliderUI();
+  updateChipLabel();
+  renderAllCards();
+  if (currentView === 'notifications') renderNotifications();
+  if (currentView === 'press-news') renderPressItems();
+  if (currentView === 'master-directions') filterMasterDirections();
+}
+
+function updateChipLabel() {
+  const label = document.getElementById('date-chip-label');
+  const btn = document.getElementById('date-chip-btn');
+  if (!label) return;
+  const isCustom = yearMin !== 2017 || yearMax !== 2026;
+  label.textContent = isCustom ? yearMin + '–' + yearMax : '2017–2026';
+  if (btn) btn.classList.toggle('active', isCustom);
+}
+
+// Parse a date string like "Dec 08, 2025" or "Jun 05, 2026" → year number
+function extractYear(dateStr) {
+  if (!dateStr) return 0;
+  const parts = dateStr.trim().split(/[\s,]+/);
+  // Last numeric token is the year
+  for (let i = parts.length - 1; i >= 0; i--) {
+    const n = parseInt(parts[i]);
+    if (!isNaN(n) && n > 2000 && n < 2100) return n;
+  }
+  return 0;
+}
+
+// Parse "January 04, 2018" or "April 22, 2025" style date → year
+function extractYearLong(dateStr) {
+  if (!dateStr) return 0;
+  const parts = dateStr.trim().split(/[\s,]+/);
+  for (let i = parts.length - 1; i >= 0; i--) {
+    const n = parseInt(parts[i]);
+    if (!isNaN(n) && n > 2000 && n < 2100) return n;
+  }
+  return 0;
+}
+
+// Close popover when clicking outside
+document.addEventListener('click', function(e) {
+  const wrap = document.getElementById('date-chip-wrap');
+  if (wrap && !wrap.contains(e.target) && datePopoverOpen) {
+    closeDatePopover();
+  }
+});
+
 function getFilteredCards() {
   return CARDS.filter(c => {
     const q = searchQuery.toLowerCase();
@@ -1894,7 +2193,10 @@ function getFilteredCards() {
     else if (activeFilter === 'Active') matchesFilter = c.status === 'active';
     else if (activeFilter === 'Superseded') matchesFilter = c.status === 'superseded';
     else matchesFilter = c.tags.some(t => t.toLowerCase().includes(activeFilter.toLowerCase())) || c.category.toLowerCase().includes(activeFilter.toLowerCase());
-    return matchesFilter && matchesSearch;
+    // Year range filter — use the year embedded in card.date e.g. "Apr 2026"
+    const cardYear = extractYear(c.date);
+    const matchesYear = cardYear === 0 || (cardYear >= yearMin && cardYear <= yearMax);
+    return matchesFilter && matchesSearch && matchesYear;
   });
 }
 
@@ -1936,7 +2238,9 @@ function getFilteredNotifications() {
     const matchSearch = !q || n.title.toLowerCase().includes(q) || n.subTheme.toLowerCase().includes(q) || n.theme.toLowerCase().includes(q);
     const matchStatus = statusF === 'all' || n.status === statusF;
     const matchTheme = themeF === 'all' || n.theme === themeF;
-    return matchSearch && matchStatus && matchTheme;
+    const notifYear = extractYear(n.date);
+    const matchYear = notifYear === 0 || (notifYear >= yearMin && notifYear <= yearMax);
+    return matchSearch && matchStatus && matchTheme && matchYear;
   });
 }
 
@@ -1947,6 +2251,12 @@ function renderNotifications() {
   const filtered = getFilteredNotifications();
   filtered.slice(0, NOTIF_PAGE_SIZE).forEach(n => appendNotifCard(n, container));
   document.getElementById('notif-load-more').classList.toggle('hidden', filtered.length <= NOTIF_PAGE_SIZE);
+  // Update header count
+  const countLabel = document.getElementById('notif-count-label');
+  if (countLabel) {
+    const rangeText = (yearMin === 2017 && yearMax === 2026) ? '2017–2025' : yearMin + '–' + yearMax;
+    countLabel.textContent = filtered.length + ' circulars · ' + rangeText;
+  }
   notifPage = 1;
 }
 
@@ -1984,7 +2294,15 @@ function renderMasterDirections(list) {
 
 function filterMasterDirections() {
   const q = (document.getElementById('md-search') ? document.getElementById('md-search').value : '').toLowerCase();
-  const filtered = q ? MASTER_DIRECTIONS.filter(md => md.title.toLowerCase().includes(q) || md.coverage.toLowerCase().includes(q) || md.tags.some(t => t.toLowerCase().includes(q))) : MASTER_DIRECTIONS;
+  let filtered = q ? MASTER_DIRECTIONS.filter(md => md.title.toLowerCase().includes(q) || md.coverage.toLowerCase().includes(q) || md.tags.some(t => t.toLowerCase().includes(q))) : [...MASTER_DIRECTIONS];
+  // Year range: include direction if its published OR lastUpdated year falls within range
+  filtered = filtered.filter(md => {
+    const pubYear = extractYearLong(md.published);
+    const updYear = extractYearLong(md.lastUpdated);
+    // Show if either published or last updated falls in range
+    const inRange = (pubYear >= yearMin && pubYear <= yearMax) || (updYear >= yearMin && updYear <= yearMax);
+    return inRange;
+  });
   renderMasterDirections(filtered);
 }
 
